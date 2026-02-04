@@ -25,12 +25,13 @@
 
             <nav class="nav">
                 <ul class="nav-list">
-                    <li id="productsLink"><a href="./index.html">Products</a></li>
-                    <li id="cartLink"><a href="./templates/cart.html">Cart</a></li>
-                    <li id="ordersLink"><a href="./templates/orders.html" style="color:var(--red);font-weight:700;">Orders</a></li>
-                    <li id="profileLink"><a href="./templates/profile.html">Profile</a></li>
+                    <li id="productsLink"><a href="/pandastore/index.html
+">Products</a></li>
+                    <li id="cartLink"><a href="/pandastore/templates/cart.html">Cart</a></li>
+                    <li id="ordersLink"><a href="/pandastore/templates/orders.html" style="color:var(--red);font-weight:700;">Orders</a></li>
+                    <li id="profileLink"><a href="/pandastore/templates/profile.html">Profile</a></li>
                     <li id="logoutLink" style="display:none;">
-                        <a href="./templates/login.html" onclick="logoutUser()">Logout</a>
+                        <a href="/pandastore/templates/login.html" onclick="logoutUser()">Logout</a>
                     </li>
                 </ul>
             </nav>
@@ -50,7 +51,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   if (localStorage.getItem("loggedIn") !== "1") {
     // 🔒 NOT login page — PUBLIC products page
-    window.location.replace("../index.html");
+    window.location.replace("/pandastore/index.html");
     return;
   }
   updateNavbar(true);
@@ -67,7 +68,7 @@ async function loadOrders() {
 
     if (!res.ok) {
       // backend says no → kick out safely
-      window.location.replace("../index.html");
+      window.location.replace("/pandastore/index.html");
       return;
     }
 
@@ -106,7 +107,7 @@ async function loadOrders() {
 
   } catch (err) {
     console.error("Order Fetch Error:", err);
-    window.location.replace("../index.html");
+    window.location.replace("/pandastore/index.html");
   }
 }
 
