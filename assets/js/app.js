@@ -37,39 +37,43 @@ function showToast(message, type = "success") {
 // ---------------------------------------------
 // ADD TO CART (NO AUTH)
 // ---------------------------------------------
-async function addToCart(product_id) {
-  try {
-    const res = await fetch(`${CONFIG.API}/cart/add`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-USER-ID": USER_ID
-      },
-      body: JSON.stringify({ product_id })
-    });
+async function addToCart(product_id, quantity = 1) {
+  const userId = localStorage.getItem("user_id");
 
-    const text = await res.text(); // 🔥 READ RAW RESPONSE
-    console.log("RAW RESPONSE:", text);
-
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      showToast("Backend returned invalid response", "error");
-      return;
-    }
-
-    if (!res.ok) {
-      showToast(data.error || "Failed to add to cart", "error");
-      return;
-    }
-
-    showToast("Added to cart");
-
-  } catch (err) {
-    console.error("ADD TO CART ERROR:", err);
-    showToast("Network / server error", "error");
+  if (!userId) {
+    showToast("Please login first", "error");
+    return;
   }
+
+  const res = await fetch(`${CONFIG.API}/cart/add`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-USER-ID": userId
+    },
+    body: JSON.stringify({
+      product_id,
+      quantity
+    })
+  });
+
+  const text = await res.text();
+  console.log("RAW RESPONSE:", text);
+
+  let data;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    showToast("Server error", "error");
+    return;
+  }
+
+  if (!res.ok) {
+    showToast(data.error || "Failed to add to cart", "error");
+    return;
+  }
+
+  showToast("Added to cart");
 }
 
 // ---------------------------------------------
