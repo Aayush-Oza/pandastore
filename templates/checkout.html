@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panda Store – Checkout</title>
+
+<link rel="stylesheet" href="assets/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+.box{
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 4px 14px rgba(0,0,0,.08);
+    margin-top:20px;
+}
+textarea, select{
+    width:100%;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    margin-top:10px;
+}
+.info{
+    background:#fff3cd;
+    padding:14px;
+    border-radius:10px;
+    margin-top:15px;
+    font-weight:600;
+    color:#7a5a00;
+}
+.btn{
+    margin-top:20px;
+    width:100%;
+    padding:14px;
+    font-size:16px;
+    border:none;
+    border-radius:12px;
+    background:var(--red);
+    color:white;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+<div class="container header-inner">
+    <div class="brand">
+  <span class="brand-icon">🐼</span>
+  <span class="brand-text">Panda<span>Store</span></span>
+</div>
+    <div class="hamburger" onclick="toggleNav()">
+            <span></span><span></span><span></span>
+        </div>
+    <nav class="nav">
+        <ul class="nav-list">
+            <li id="productsLink"><a href="index.html">Products</a></li>
+            <li id="cartLink"><a href="cart.html">Cart</a></li>
+            <li id="checkoutLink"><a href="checkout.html" style="color:var(--red);font-weight:700;">Checkout</a></li>
+            <li id="ordersLink"><a href="orders.html">Orders</a></li>
+            <li id="profileLink"><a href="profile.html">Profile</a></li>
+            <li id="logoutLink" style="display:none;">
+              <a href="#" onclick="logoutUser()">Logout</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+</header>
+
+<div class="container" style="max-width:650px;padding:40px 0">
+
+<h2 style="color:var(--red);font-weight:800">Checkout</h2>
+
+<!-- ADDRESS -->
+<div class="box">
+<h3>Delivery Address</h3>
+
+<select id="addressMode" onchange="handleAddressMode()">
+    <option value="auto">Use saved address</option>
+    <option value="manual">Enter manually</option>
+</select>
+
+<textarea id="address"
+    rows="4"
+    placeholder="Delivery address"
+    disabled></textarea>
+
+<h3>Payment Method</h3>
+<select id="paymentMethod">
+    <option value="COD">Cash on Delivery</option>
+    <option value="ONLINE">Online Payment</option>
+</select>
+
+<div class="info">
+⚠ Development Mode<br>
+Payment is <b>not processed</b>.  
+This checkout skips real payments.
+</div>
+
+<button class="btn" onclick="placeOrder()">Place Order</button>
+</div>
+
+<!-- SUMMARY -->
+<div class="box" id="summaryBox"></div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="assets/js/app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  if (localStorage.getItem("loggedIn") !== "1") {
+    window.location.replace("index.html");
+    return;
+  }
+});
+// ---------- TOAST ----------
+function showToast(msg){
+    const t=document.getElementById("toast");
+    t.innerText=msg;
+    t.className="toast show";
+    setTimeout(()=>t.className="toast",3000);
+}
+
+// ---------- ADDRESS MODE ----------
+function handleAddressMode(){
+    const mode=document.getElementById("addressMode").value;
+    const addr=document.getElementById("address");
+
+    if(mode==="manual"){
+        addr.disabled=false;
+        addr.value="";
+        addr.focus();
+    }else{
+        addr.disabled=true;
+        loadSavedAddress();
+    }
+}
+
+// ---------- LOAD CHECKOUT ----------
+document.addEventListener("DOMContentLoaded",()=>{
+    loadCartSummary();
+    loadSavedAddress();
+});
+
+async function loadCartSummary() {
+  const res = await fetch(`${CONFIG.API}/cart`, {
+    headers: {
+      "X-USER-ID": localStorage.getItem("user_id")
+    }
+  });
+
+  const cart = await res.json();
+  const summaryBox = document.getElementById("summaryBox");
+
+  if (!cart.length) {
+    summaryBox.innerHTML = "<h3>No items to checkout</h3>";
+    return;
+  }
+
+  let total = 0;
+  let html = "<h3>Order Summary</h3>";
+
+  cart.forEach(i => {
+    total += i.subtotal;
+    html += `<p>${i.name} × ${i.qty}</p>`;
+  });
+
+  summaryBox.innerHTML = html + `<hr><h3>Total: ₹${total}</h3>`;
+}
+
+
+async function loadSavedAddress() {
+  try {
+    const res = await fetch(`${CONFIG.API}/auth/profile`);
+    if (!res.ok) return;
+
+    const p = await res.json();
+    if (p.address) {
+      const addr = document.getElementById("address");
+      addr.value = p.address;
+    }
+  } catch (e) {
+    console.error("Address fetch failed", e);
+  }
+}
+
+// ---------- PLACE ORDER ----------
+async function placeOrder() {
+  const addr = document.getElementById("address").value.trim();
+  const payment = document.getElementById("paymentMethod").value;
+
+  if (!addr) {
+    showToast("Address is required");
+    return;
+  }
+
+  const res = await fetch(`${CONFIG.API}/order/place`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-USER-ID": localStorage.getItem("user_id")
+  },
+  body: JSON.stringify({
+    payment_method: payment
+  })
+});
+
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("Order error:", text);
+    showToast("Order failed");
+    return;
+  }
+
+  const data = await res.json();
+  localStorage.setItem("last_order_id", data.order_id);
+  showToast(
+    payment === "ONLINE"
+      ? "Order placed (payment skipped – dev mode)"
+      : "Order placed successfully"
+  );
+
+  setTimeout(() => location.href = "orders.html", 1200);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product – Panda Store Admin</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+
+    <style>
+        body {
+            background:#f7f7f7;
+            font-family:Poppins,sans-serif;
+        }
+        label {
+            font-weight:600;
+            margin-top:12px;
+            display:block;
+        }
+        .input {
+            width:100%;
+            padding:12px;
+            margin-bottom:14px;
+            border-radius:8px;
+            border:1px solid #ccc;
+            font-size:15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <div class="brand">Panda<span style="color:var(--orange)">Admin</span></div>
+        <!-- REMOVE THIS FROM ADMIN -->
+<div class="hamburger" onclick="toggleNav()">
+    <span></span><span></span><span></span>
+</div>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="add-product.html" style="color:var(--red);font-weight:700;">Add Product</a></li>
+                <li><a href="products.html">Manage Products</a></li>
+                <li><a href="customers.html">Customers</a></li> 
+                <li><a href="order.html">Orders</a></li>
+                <li><a href="#" onclick="logoutAdmin()">Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<!-- FORM -->
+<div class="container" style="max-width:600px;padding:40px 0;">
+    <h2 style="color:var(--red);font-weight:700;">Add New Product</h2>
+
+    <form id="productForm"
+          style="background:white;padding:25px;border-radius:12px;
+          box-shadow:0 4px 14px rgba(0,0,0,0.1)">
+
+        <!-- PRODUCT NO -->
+        <label>Product ID</label>
+        <input id="product_no" class="input" placeholder="PANDA-001" required>
+
+        <!-- NAME -->
+        <label>Product Name</label>
+        <input id="name" class="input" placeholder="Enter product name" required>
+
+        <!-- CATEGORY -->
+        <label>Category</label>
+        <input id="category" class="input" placeholder="Eg. Electronics, Fashion" required>
+
+        <!-- DESCRIPTION -->
+        <label>Description</label>
+        <textarea id="description" class="input" rows="3"
+                  placeholder="Short product description"></textarea>
+
+        <!-- PRICE -->
+        <label>Price (₹)</label>
+        <input id="price" type="number" min="1" class="input" required>
+
+        <!-- STOCK -->
+        <label>Stock Available</label>
+        <input id="stock" type="number" min="0" class="input" required>
+
+        <!-- IMAGE -->
+        <label>Product Image</label>
+        <button type="button" class="btn primary" onclick="uploadImage()">Upload Image</button>
+        <p id="imageStatus" style="opacity:.7;margin-top:6px;">No image uploaded</p>
+
+        <!-- SUBMIT -->
+        <button id="submitBtn" class="btn primary"
+                style="width:100%;margin-top:20px;" disabled>
+            Add Product
+        </button>
+    </form>
+</div>
+<script src="assets/js/app.js"></script>
+<script>
+let imageURL = "";
+
+// IMAGE UPLOAD
+function uploadImage() {
+    cloudinary.openUploadWidget({
+        cloudName: "du7hfexwm",
+        uploadPreset: "unsigned_chunri_upload",
+        multiple: false
+    }, (err, res) => {
+        if (!err && res && res.event === "success") {
+            imageURL = res.info.secure_url;
+            imageStatus.innerHTML = "Image uploaded ✔";
+            submitBtn.disabled = false;
+        }
+    });
+}
+
+// SUBMIT
+productForm.addEventListener("submit", async e => {
+    e.preventDefault();
+
+    try {
+        const rawCategory = document.getElementById("category").value.trim();
+        const normalizedCategory =
+            rawCategory.charAt(0).toUpperCase() + rawCategory.slice(1).toLowerCase();
+
+        const payload = {
+            product_no: document.getElementById("product_no").value.trim(),
+            name: document.getElementById("name").value.trim(),
+            category: normalizedCategory,
+            description: document.getElementById("description").value.trim(),
+            price: Number(document.getElementById("price").value),
+            stock: Number(document.getElementById("stock").value),
+            image_url: imageURL,
+            is_active: true
+        };
+
+        console.log("📦 Sending payload:", payload);
+
+        const res = await fetch(`${CONFIG.API}/product`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload)
+});
+        console.log("📡 Response status:", res.status);
+
+        const data = await res.json();
+        console.log("✅ Response data:", data);
+if (!res.ok) {
+    showToast(data.error || "Failed to add product", "error");
+    return;
+}
+
+showToast("Product added successfully", "success");
+        // window.location.href = "dashboard.html"; // keep OFF for now
+
+    } catch (err) {
+        console.error("❌ JS error:", err);
+        showToast("Frontend error. Check console.", "error");
+    }
+});
+
+// AUTH
+function logoutAdmin() {
+    localStorage.clear();
+    location.href = "admin-login.html";
+}
+
+if (localStorage.getItem("is_admin") !== "true") {
+    location.href = "admin-login.html";
+}
+</script>
+<div id="toast" class="toast"></div>
+</body>
+</html>

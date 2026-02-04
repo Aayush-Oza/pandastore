@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panda Store – Cart</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/products.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <div class="brand">
+  <span class="brand-icon">🐼</span>
+  <span class="brand-text">Panda<span>Store</span></span>
+</div>
+
+        <div class="hamburger" onclick="toggleNav()">
+            <span></span><span></span><span></span>
+        </div>
+
+        <nav class="nav">
+            <ul class="nav-list">
+  <li id="productsLink"><a href="index.html">Products</a></li>
+    <li id="cartLink"><a href="cart.html" style="color:var(--red);font-weight:700;">Cart</a></li>
+    <li id="ordersLink"><a href="orders.html">Orders</a></li>
+    <li id="profileLink"><a href="profile.html">Profile</a></li>
+  <li id="logoutLink" style="display:none;">
+    <a href="#" onclick="logoutUser()">Logout</a>
+  </li>
+</ul>
+        </nav>
+    </div>
+</header>
+
+<!-- CART -->
+<div class="container" style="padding:40px 0;">
+    <h2 style="color:var(--red);font-weight:700;">Your Cart</h2>
+
+    <div id="cartContainer"></div>
+
+    <h3 id="totalBox" style="margin-top:20px;font-weight:700;"></h3>
+
+    <button class="checkout-btn" id="checkoutBtn" onclick="goCheckout()" style="display:none;">
+        Proceed to Checkout
+    </button>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="assets/js/app.js"></script>
+
+<script>
+const qtyTimers = {};
+let toastTimer;
+document.addEventListener("DOMContentLoaded", () => {
+  if (localStorage.getItem("loggedIn") !== "1") {
+    window.location.replace("index.html");
+    return;
+  }
+
+  loadCart();
+});
+
+/* ---------------- LOAD CART ---------------- */
+async function loadCart() {
+  const token = localStorage.getItem("token");
+
+const res = await fetch(`${CONFIG.API}/cart`, {
+  headers: {
+    "X-USER-ID": USER_ID
+  }
+});
+
+
+  if (!res.ok) {
+    showToast("Please login to view your cart", "error");
+    return;
+  }
+
+  const cart = await res.json();
+
+  if (!cart.length) {
+    cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+    totalBox.innerText = "";
+    checkoutBtn.style.display = "none";
+    return;
+  }
+
+  let total = 0;
+  let html = "";
+
+  cart.forEach(item => {
+    total += item.subtotal;
+
+    html += `
+      <div class="cart-card" data-price="${item.price}">
+        <div class="cart-name">${item.name}</div>
+        <div class="cart-meta">₹${item.price} · Stock ${item.stock}</div>
+
+        <input class="cart-qty"
+               type="number"
+               min="1"
+               max="${item.stock}"
+               value="${item.qty}"
+               onchange="updateQty(${item.cart_id}, this)">
+
+        <div class="cart-subtotal"
+             data-id="${item.cart_id}"
+             data-value="${item.subtotal}">
+          ₹${item.subtotal}
+        </div>
+
+        <button class="cart-remove"
+                onclick="removeItem(${item.cart_id})">
+          Remove
+        </button>
+      </div>`;
+  });
+
+  cartContainer.innerHTML = html;
+  totalBox.innerText = `Total: ₹${total}`;
+  checkoutBtn.style.display = "block";
+}
+
+/* ---------------- QTY CHANGE (FAST) ---------------- */
+function updateQty(cart_id, input) {
+  let qty = Number(input.value);
+  const max = Number(input.max);
+
+  if (qty < 1) {
+    qty = 1;
+    input.value = 1;
+    showToast("Minimum quantity is 1");
+  }
+
+  if (qty > max) {
+    qty = max;
+    input.value = max;
+    showToast(`Only ${max} items in stock`);
+  }
+
+  // ✅ ALWAYS update UI with final qty
+  updateSubtotalOnly(cart_id, qty);
+
+  // debounce API call
+  clearTimeout(qtyTimers[cart_id]);
+  qtyTimers[cart_id] = setTimeout(() => {
+    sendQtyUpdate(cart_id, qty, input);
+  }, 400);
+}
+
+/* ---------------- API UPDATE ---------------- */
+async function sendQtyUpdate(cart_id, qty, input) {
+  input.disabled = true;
+
+  const res = await fetch(`${CONFIG.API}/cart/update`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "X-USER-ID": localStorage.getItem("user_id")
+    },
+    body: JSON.stringify({ cart_id, qty })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    showToast(data.error || "Update failed", "error");
+    input.disabled = false;
+    return;
+  }
+
+  // 🔥 APPLY SERVER RESPONSE
+  const subtotalEl = document.querySelector(`[data-id="${cart_id}"]`);
+  subtotalEl.dataset.value = data.subtotal;
+  subtotalEl.innerText = `₹${data.subtotal}`;
+
+  updateTotalOnly();
+  input.disabled = false;
+}
+
+/* ---------------- SUBTOTAL UPDATE ---------------- */
+function updateSubtotalOnly(cart_id, qty) {
+  const subtotalEl = document.querySelector(`[data-id="${cart_id}"]`);
+  if (!subtotalEl) return;
+
+  const card = subtotalEl.closest(".cart-card");
+  const price = Number(card.dataset.price);
+
+  const value = price * qty;
+  subtotalEl.dataset.value = value;
+  subtotalEl.innerText = `₹${value}`;
+
+  updateTotalOnly();
+}
+
+/* ---------------- TOTAL UPDATE ---------------- */
+function updateTotalOnly() {
+  let total = 0;
+  document.querySelectorAll(".cart-subtotal").forEach(el => {
+    total += Number(el.dataset.value);
+  });
+  totalBox.innerText = `Total: ₹${total}`;
+}
+
+/* ---------------- REMOVE ITEM ---------------- */
+async function removeItem(cart_id) {
+  const token = localStorage.getItem("token");
+
+fetch(`${CONFIG.API}/cart/delete/${cart_id}`, {
+  method: "DELETE",
+  headers: {
+    "X-USER-ID": USER_ID
+  }
+});
+
+  showToast("Item removed");
+  loadCart();
+}
+
+/* ---------------- CHECKOUT ---------------- */
+async function goCheckout() {
+
+  const token = localStorage.getItem("token");
+
+const res = await fetch(`${CONFIG.API}/cart`, {
+  headers: {
+    "X-USER-ID": USER_ID
+  }
+});
+
+  const cart = await res.json();
+
+  if (!cart.length) return showToast("Cart is empty");
+  if (cart.some(i => i.qty > i.stock)) {
+    return showToast("Fix cart quantities");
+  }
+
+  localStorage.setItem("checkout_cart", JSON.stringify(cart));
+  location.href = "checkout.html";
+}
+</script>
+</body>
+</html>

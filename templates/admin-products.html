@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Products - Admin</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { background:#f8f8f8; font-family:Poppins, sans-serif; }
+
+        .container-box {
+            max-width: 1200px;
+            margin: 30px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+        }
+
+        table {
+            width:100%;
+            border-collapse:collapse;
+            margin-top:15px;
+        }
+
+        th, td {
+            padding:12px;
+            border-bottom:1px solid #eee;
+        }
+
+        th { background:var(--red); color:white; }
+
+        img {
+            width:60px;
+            height:60px;
+            border-radius:6px;
+            object-fit:cover;
+        }
+
+        .btn {
+            padding:6px 10px;
+            border:none;
+            cursor:pointer;
+            border-radius:6px;
+            color:white;
+        }
+
+        .edit-btn { background:#1e90ff; }
+        .delete-btn { background:#ff4d4d; }
+
+        /* popup */
+        .popup {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background:rgba(0,0,0,0.4);
+            display:none;
+            justify-content:center;
+            align-items:center;
+        }
+        .popup-inner {
+            background:white;
+            padding:20px;
+            border-radius:12px;
+            width:350px;
+        }
+        input {
+            width:100%;
+            margin-bottom:12px;
+            padding:10px;
+            border:1px solid #ccc;
+            border-radius:6px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <div class="brand">Admin<span style="color:var(--orange)">Panel</span></div>
+
+        <nav class="nav">
+            <ul class="nav-list">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="customers.html">Customers</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li><a href="add-product.html">Add Product</a></li>
+                <li><a href="admin-index.html" style="color:var(--red);font-weight:700;">Manage Products</a></li>
+                <li><a href="#" onclick="logoutAdmin()">Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<script>
+function logoutAdmin() {
+    localStorage.removeItem("is_admin");
+    window.location.href = "admin-login.html";
+}
+if (localStorage.getItem("is_admin") !== "true") {
+    alert("Admin access only!");
+    window.location.href = "admin-login.html";
+}
+</script>
+
+<div class="container-box">
+    <h2 style="color:var(--red); text-align:center;">Manage Products</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Cloth</th>
+                <th>Design</th>
+                <th>Color</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="productTable"></tbody>
+    </table>
+</div>
+
+<!-- EDIT POPUP -->
+<div class="popup" id="editPopup">
+    <div class="popup-inner">
+        <h3>Edit Product</h3>
+
+        <input id="editName" placeholder="Name">
+        <input id="editPrice" placeholder="Price" type="number">
+        <input id="editStock" placeholder="Stock" type="number">
+        <input id="editCloth" placeholder="Cloth Type">
+        <input id="editDesign" placeholder="Design">
+        <input id="editColor" placeholder="Color">
+        <input id="editImage" placeholder="Image URL">
+
+        <button class="btn" style="background:var(--orange);" onclick="saveProduct()">Save</button>
+        <button class="btn" style="background:#aaa;" onclick="closePopup()">Cancel</button>
+    </div>
+</div>
+
+<script>
+const API = "https://chunri-backend.onrender.com/api";
+
+let editingId = null;
+
+async function loadProducts() {
+    const res = await fetch(`${API}/products`);
+    const products = await res.json();
+
+    const table = document.getElementById("productTable");
+    table.innerHTML = "";
+
+    products.forEach(p => {
+        table.innerHTML += `
+            <tr>
+                <td>${p.id}</td>
+                <td><img src="${p.image_url}"></td>
+                <td>${p.name}</td>
+                <td>₹${p.price}</td>
+                <td>${p.stock}</td>
+                <td>${p.cloth_type}</td>
+                <td>${p.design}</td>
+                <td>${p.color}</td>
+
+                <td>
+                    <button class="btn edit-btn" onclick="openEdit(${p.id})">Edit</button>
+                    <button class="btn delete-btn" onclick="deleteProduct(${p.id})">Delete</button>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+function openEdit(id) {
+    editingId = id;
+    document.getElementById("editPopup").style.display = "flex";
+
+    fetch(`${API}/products`)
+        .then(res => res.json())
+        .then(data => {
+            let p = data.find(x => x.id === id);
+
+            document.getElementById("editName").value = p.name;
+            document.getElementById("editPrice").value = p.price;
+            document.getElementById("editStock").value = p.stock;
+            document.getElementById("editCloth").value = p.cloth_type;
+            document.getElementById("editDesign").value = p.design;
+            document.getElementById("editColor").value = p.color;
+            document.getElementById("editImage").value = p.image_url;
+        });
+}
+
+function closePopup() {
+    document.getElementById("editPopup").style.display = "none";
+}
+
+async function saveProduct() {
+    const body = {
+        name: document.getElementById("editName").value,
+        price: Number(document.getElementById("editPrice").value),
+        stock: Number(document.getElementById("editStock").value),
+        cloth_type: document.getElementById("editCloth").value,
+        design: document.getElementById("editDesign").value,
+        color: document.getElementById("editColor").value,
+        image_url: document.getElementById("editImage").value
+    };
+
+    await fetch(`${API}/product/${editingId}`, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(body)
+    });
+
+    closePopup();
+    loadProducts();
+}
+
+async function deleteProduct(id) {
+    if (!confirm("Delete this product?")) return;
+
+    await fetch(`${API}/product/${id}`, { method: "DELETE" });
+    loadProducts();
+}
+
+document.addEventListener("DOMContentLoaded", loadProducts);
+</script>
+
+</body>
+</html>

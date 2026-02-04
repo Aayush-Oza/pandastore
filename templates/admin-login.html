@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Chunri Store</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --red: #d62828; }
+
+        .input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        .login-box {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 25px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container" style="max-width:450px; padding-top:60px;">
+    <h2 style="text-align:center; color:var(--red); font-weight:700;">Admin Login</h2>
+
+    <div class="login-box">
+
+        <label>Email</label>
+        <input id="adminEmail" type="email" class="input">
+
+        <label>Password</label>
+<div style="position:relative;">
+  <input id="adminPassword" type="password" class="input" style="padding-right:45px;">
+  <span 
+    onclick="toggleAdminPassword(this)"
+    style="
+      position:absolute;
+      right:12px;
+      top:40%;
+      transform:translateY(-50%);
+      cursor:pointer;
+      font-size:18px;
+    ">
+    👁️
+  </span>
+</div>
+        <button class="btn primary" onclick="adminLogin()" style="width:100%;">Login</button>
+
+        <p id="msg" style="text-align:center; margin-top:14px; color:red;"></p>
+    </div>
+</div>
+<script src="assets/js/app.js"></script>
+<script>
+// -------------------------
+// ADMIN LOGIN FUNCTION
+// -------------------------
+async function adminLogin() {
+
+    const email = document.getElementById("adminEmail").value.trim();
+    const password = document.getElementById("adminPassword").value.trim();
+    const msg = document.getElementById("msg");
+
+    msg.innerHTML = ""; // clear
+
+    // Simple Validation
+    if (!email || !password) {
+        msg.innerHTML = "Please enter email & password";
+        return;
+    }
+
+    let res;
+    try {
+     res = await fetch(`${CONFIG.BASE_URL}/api/auth/login`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ email, password })
+});
+    }
+    catch (error) {
+        msg.innerHTML = "Backend not reachable!";
+        return;
+    }
+
+    let data;
+    try {
+        data = await res.json();
+    } catch {
+        msg.innerHTML = "Invalid backend response";
+        return;
+    }
+
+    // Invalid credentials
+    if (data.error) {
+        msg.innerHTML = "Invalid credentials!";
+        return;
+    }
+
+    // Not an admin
+    if (!data.is_admin) {
+        msg.innerHTML = "Access denied — Not an admin!";
+        return;
+    }
+
+    // SUCCESS
+    localStorage.setItem("admin_id", data.user_id);
+    localStorage.setItem("is_admin", "true");
+
+    window.location.href = "dashboard.html";
+}
+function toggleAdminPassword(icon) {
+  const input = document.getElementById("adminPassword");
+
+  if (input.type === "password") {
+    input.type = "text";
+    icon.textContent = "🙈";
+  } else {
+    input.type = "password";
+    icon.textContent = "👁️";
+  }
+}
+</script>
+</body>
+</html>

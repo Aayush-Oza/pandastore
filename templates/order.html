@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Orders - Chunri Store</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { background:#f8f8f8; font-family:Poppins, sans-serif; }
+
+        .orders-container {
+            max-width:1150px;
+            margin:40px auto;
+            background:#fff;
+            padding:25px;
+            border-radius:12px;
+            box-shadow:0 4px 14px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            color:var(--red);
+            font-weight:700;
+            text-align:center;
+            margin-bottom:20px;
+        }
+
+        .search-bar {
+            display:flex;
+            gap:10px;
+            margin-bottom:20px;
+        }
+
+        .search-bar input, .search-bar select {
+            padding:10px 12px;
+            font-size:15px;
+            border:1px solid #ccc;
+            border-radius:8px;
+            width:100%;
+        }
+
+        table {
+            width:100%;
+            border-collapse:collapse;
+            background:white;
+        }
+
+        th, td {
+            padding:12px;
+            text-align:left;
+        }
+
+        th {
+            background:var(--red);
+            color:white;
+            font-weight:600;
+        }
+
+        tr:nth-child(even) { background:#fafafa; }
+
+        .status {
+            padding:6px 12px;
+            border-radius:20px;
+            font-size:14px;
+            font-weight:600;
+        }
+
+        .pending { background:#ffe066; color:#7a6000; }
+        .paid    { background:#8df29a; color:#0a6e0a; }
+        .failed  { background:#ff9999; color:#7a0000; }
+
+        .btn.small {
+            padding:6px 10px;
+            background:var(--red);
+            border:none;
+            color:#fff;
+            cursor:pointer;
+            border-radius:8px;
+            font-size:14px;
+        }
+
+        /* Mobile */
+        @media(max-width:768px) {
+            table, thead, tbody, th, td, tr { display:block; }
+            th { display:none; }
+
+            tr {
+                margin-bottom:15px;
+                background:#fff;
+                border:1px solid #ddd;
+                border-radius:10px;
+                padding:10px;
+            }
+
+            td {
+                display:flex;
+                justify-content:space-between;
+                padding:8px;
+            }
+
+            td::before {
+                content: attr(data-label);
+                font-weight:600;
+                color:var(--red);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <div class="container header-inner">
+        <div class="brand">Admin<span style="color:var(--orange)">Panel</span></div>
+        <div class="hamburger" onclick="toggleNav()">
+            <span></span><span></span><span></span>         
+        </div>
+        <nav class="nav">
+            <ul class="nav-list">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="add-product.html">Add Product</a></li>
+                 <li><a href="products.html">Manage Products</a></li>
+                <li><a href="customers.html">Customers</a></li> 
+                <li><a href="order.html" style="color:var(--red);font-weight:700;">Orders</a></li>
+                <li><a href="#" onclick="logoutAdmin()">Logout</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+<script src="assets/js/app.js"></script>
+<script>
+function logoutAdmin() {
+    localStorage.removeItem("is_admin");
+    localStorage.removeItem("admin_id");
+    window.location.href = "admin-login.html";
+}
+
+if (localStorage.getItem("is_admin") !== "true") {
+    alert("Admin access only!");
+    window.location.href = "admin-login.html";
+}
+</script>
+
+
+<div class="orders-container">
+    <h2>All Orders</h2>
+
+    <div class="search-bar">
+        <input type="text" id="searchBox" placeholder="Search customer..." onkeyup="loadOrders()">
+        <select id="filterStatus" onchange="loadOrders()">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="failed">Failed</option>
+        </select>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Invoice</th>
+            </tr>
+        </thead>
+        <tbody id="ordersBody"></tbody>
+    </table>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", loadOrders);
+
+async function loadOrders() {
+  const search = (searchBox.value || "").toLowerCase();
+  const statusFilter = (filterStatus.value || "").toLowerCase();
+
+  const res = await fetch(`${CONFIG.API}/admin/all-orders`);
+  if (!res.ok) {
+    showToast("Failed to load orders", "error");
+    return;
+  }
+
+  const orders = await res.json();
+  const table = document.getElementById("ordersBody");
+  table.innerHTML = "";
+
+  const filtered = orders.filter(o => {
+    const name = (o.customer_name || "").toLowerCase();
+    const status = (o.payment_status || "").toLowerCase();
+
+    return (
+      name.includes(search) &&
+      (!statusFilter || status === statusFilter)
+    );
+  });
+
+  if (!filtered.length) {
+    table.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align:center;padding:30px;">
+          No orders found
+        </td>
+      </tr>`;
+    return;
+  }
+
+  filtered.forEach(o => {
+    table.innerHTML += `
+      <tr>
+        <td>#${o.order_id}</td>
+        <td>${o.customer_name}</td>
+        <td>₹${o.total_price}</td>
+        <td>
+          <span class="status ${o.payment_status.toLowerCase()}">
+            ${o.payment_status}
+          </span>
+        </td>
+        <td>${new Date(o.created_at).toLocaleString("en-IN")}</td>
+        <td>
+          <button class="btn small"
+            onclick="downloadInvoice(${o.order_id})">
+            Download
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function downloadInvoice(orderId) {
+    window.open(`http://127.0.0.1:5000/api/invoice/${orderId}`, "_blank");
+}
+</script>
+</body>
+</html>

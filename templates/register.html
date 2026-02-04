@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chunri Store - Register</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        .input-field {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-bottom: 12px;
+        }
+        .otp-box {
+            display: none;
+            margin-top: 15px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--red);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: gray;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<header class="header">
+    <div class="container header-inner">
+        <div class="brand">
+  <span class="brand-icon">🐼</span>
+  <span class="brand-text">Panda<span>Store</span></span>
+</div>
+
+    </div>
+</header>
+
+<div class="auth-box">
+    <h2>Create Account</h2>
+
+    <input class="input-field" id="name" placeholder="Full Name" required>
+
+    <input class="input-field" id="email" placeholder="Email Address" required>
+
+    <input class="input-field" id="phone" placeholder="Phone Number" required>
+
+    <input class="input-field" id="address" placeholder="Address" required>
+
+    <div class="password-wrap">
+    <input type="password" id="password" class="input-field" placeholder="Create Password" required>
+    <span class="eye" onclick="togglePassword('password', this)">👁️</span>
+</div>
+
+<div class="password-wrap">
+    <input type="password" id="confirmPassword" class="input-field" placeholder="Confirm Password" required>
+    <span class="eye" onclick="togglePassword('confirmPassword', this)">👁️</span>
+</div>
+    <p id="passwordMsg" style="
+  margin-top:8px;
+  font-size:14px;
+  display:none;
+"></p>
+    <button type="button" class="otp-btn" onclick="sendOTP()">
+  Send OTP
+</button>
+
+    <!-- OTP BOX -->
+    <div class="otp-box" id="otpSection">
+        <input class="input-field" id="otp" placeholder="Enter OTP">
+        <button onclick="verifyAndRegister()">Verify OTP & Register</button>
+    </div>
+
+    <p style="margin-top: 10px; text-align:center;">
+        Already have an account? 
+        <a href="login.html" style="color: var(--orange); font-weight:700;">Login</a>
+    </p>
+</div>
+
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+
+<script>
+const API = "http://127.0.0.1:5000/api";
+// 🔐 PASSWORD RULE
+const strongPasswordRegex =
+/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
+const passwordInput = document.getElementById("password");
+const confirmInput = document.getElementById("confirmPassword");
+const passwordMsg = document.getElementById("passwordMsg");
+const otpBtn = document.querySelector(".otp-btn");
+
+// 🔴🟢 LIVE PASSWORD VALIDATION
+passwordInput.addEventListener("input", () => {
+  const value = passwordInput.value.trim();
+
+  if (!value) {
+    passwordMsg.style.display = "none";
+    otpBtn.disabled = true;
+    return;
+  }
+
+  passwordMsg.style.display = "block";
+
+  if (strongPasswordRegex.test(value)) {
+    passwordMsg.style.color = "green";
+    passwordMsg.textContent = "Strong password ✔";
+    otpBtn.disabled = false;
+  } else {
+    passwordMsg.style.color = "#d62828";
+    passwordMsg.innerHTML = `
+      Password must contain:
+      <br>• 8+ characters
+      <br>• 1 uppercase letter
+      <br>• 1 lowercase letter
+      <br>• 1 number
+      <br>• 1 special character
+    `;
+    otpBtn.disabled = true;
+  }
+});
+
+function showToast(msg) {
+    const toast = document.getElementById("toast");
+    toast.innerText = msg;
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3000);
+}
+
+function togglePassword(fieldId, icon) {
+    const input = document.getElementById(fieldId);
+
+    if (input.type === "password") {
+        input.type = "text";
+        icon.textContent = "🙈";
+    } else {
+        input.type = "password";
+        icon.textContent = "👁️";
+    }
+}
+
+async function sendOTP() {
+    const email = document.getElementById("email").value.trim();
+    const password = passwordInput.value.trim();
+    const confirm  = confirmInput.value.trim();
+
+    if (!email) {
+        showToast("Enter your email!");
+        return;
+    }
+
+    if (!strongPasswordRegex.test(password)) {
+        showToast("Password does not meet requirements");
+        return;
+    }
+
+    if (password !== confirm) {
+        showToast("Passwords do not match");
+        return;
+    }
+
+    const res = await fetch(`${API}/auth/send-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+        showToast(data.error || "Failed to send OTP");
+        return;
+    }
+
+    document.getElementById("otpSection").style.display = "block";
+    showToast("OTP sent successfully!");
+}
+
+async function verifyAndRegister() {
+    if (!strongPasswordRegex.test(passwordInput.value)) {
+    showToast("Weak password. Fix it first.");
+    return;
+}
+
+if (passwordInput.value !== confirmInput.value) {
+    showToast("Passwords do not match");
+    return;
+}
+
+    const emailInput = document.getElementById("email");
+    const otpInput = document.getElementById("otp");
+    const nameInput = document.getElementById("name");
+    const phoneInput = document.getElementById("phone");
+    const addressInput = document.getElementById("address");
+
+    const email = emailInput.value.trim();
+    const otpValue = otpInput.value.trim();
+
+    if (!email || !otpValue) {
+        showToast("Email and OTP are required!");
+        return;
+    }
+
+    // STEP 1 — VERIFY OTP
+    const otpRes = await fetch(`${API}/auth/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            email: email,
+            otp: otpValue
+        })
+    });
+
+    const otpData = await otpRes.json();
+
+    if (!otpRes.ok) {
+        showToast(otpData.error || "Invalid OTP");
+        return;
+    }
+
+    // STEP 2 — REGISTER USER
+    const regRes = await fetch(`${API}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            name: nameInput.value.trim(),
+            email: email,
+            phone: phoneInput.value.trim(),
+            address: addressInput.value.trim(),
+            password: passwordInput.value
+        })
+    });
+
+    const regData = await regRes.json();
+
+    if (regRes.ok) {
+        showToast("Registration Successful!");
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 1500);
+    } else {
+        showToast(regData.error || "Registration failed");
+    }
+}
+
+</script>
+</body>
+</html>

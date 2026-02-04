@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panda Store – Products</title>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/products.css" />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="header">
+  <div class="container header-inner">
+    <div class="brand">
+  <span class="brand-icon">🐼</span>
+  <span class="brand-text">Panda<span>Store</span></span>
+</div>
+
+    <div class="hamburger" onclick="toggleNav()">
+      <span></span><span></span><span></span>
+    </div>
+<nav class="nav">
+  <ul class="nav-list">
+    <li id="loginLink"><a href="login.html">Login</a></li>
+
+<li id="productsLink">
+  <a href="index.html" style="color:var(--red); font-weight:700;">Products</a>
+</li>
+
+<li id="cartLink"><a href="cart.html">Cart</a></li>
+<li id="ordersLink"><a href="orders.html">Orders</a></li>
+<li id="profileLink"><a href="profile.html">Profile</a></li>
+
+<li id="logoutLink">
+  <a href="#" onclick="logoutUser()">Logout</a>
+</li>
+  </ul>
+</nav>
+</div>
+</header>
+<!-- ================= PRODUCTS ================= -->
+<div class="container">
+  <h2 class="page-title">Explore Panda Store</h2>
+  <div id="categorySections"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="assets/js/app.js"></script>
+
+<script>
+ 
+window.onload = () => {
+  loadProducts();
+};
+
+// ================= LOAD PRODUCTS =================
+async function loadProducts() {
+  const res = await fetch(`${CONFIG.API}/products`);
+  const products = await res.json();
+  renderByCategory(products);
+}
+
+// ================= RENDER BY CATEGORY =================
+function renderByCategory(products) {
+  const wrapper = document.getElementById("categorySections");
+  wrapper.innerHTML = "";
+
+  if (!products.length) {
+    wrapper.innerHTML = "<p>No products available.</p>";
+    return;
+  }
+
+  // Group products by category
+  const grouped = {};
+  products.forEach(p => {
+    const category = p.category || "Other";
+    if (!grouped[category]) grouped[category] = [];
+    grouped[category].push(p);
+  });
+
+  // Render sections
+  Object.entries(grouped).forEach(([category, items]) => {
+    const section = document.createElement("section");
+    section.className = "category-section";
+
+    section.innerHTML = `
+      <h3 class="category-title">${category}</h3>
+      <div class="product-grid">
+        ${items.map(p => renderProductCard(p)).join("")}
+      </div>
+    `;
+
+    wrapper.appendChild(section);
+  });
+}
+
+// ================= PRODUCT CARD =================
+function renderProductCard(p) {
+  const out = p.stock <= 0;
+
+  return `
+    <div class="product-card">
+      <img
+        src="${p.image_url || 'https://via.placeholder.com/300'}"
+        alt="${p.name}"
+        onclick="openProduct(${p.id})"
+      >
+
+      <h3 onclick="openProduct(${p.id})">${p.name}</h3>
+
+      <div class="price">₹${p.price}</div>
+
+      ${
+        out
+          ? `<div class="stock out">Out of stock</div>`
+          : `<div class="stock available">In stock (${p.stock})</div>`
+      }
+
+      ${
+        out
+          ? `<button disabled>Unavailable</button>`
+          : `<button onclick="addToCart(${p.id})">Add to Cart</button>`
+      }
+    </div>
+  `;
+}
+// ================= NAVIGATE =================
+function openProduct(id) {
+  window.location.href = `product_detail.html?id=${id}`;
+}
+</script>
+</body>
+</html>

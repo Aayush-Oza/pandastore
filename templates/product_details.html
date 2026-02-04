@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chunri Store - Product Details</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container header-inner">
+            <div class="brand">Chunri<span>Store</span></div>
+
+            <div class="hamburger" onclick="toggleNav()">
+                <span></span><span></span><span></span>
+            </div>
+
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="index.html">Products</a></li>
+                    <li><a href="cart.html">Cart</a></li>
+                    <li><a href="login.html">Login</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- PRODUCT DETAILS -->
+    <div class="container" style="padding: 35px 0;">
+        <div id="productBox"></div>
+    </div>
+
+    <!-- JS -->
+    <script src="assets/js/app.js"></script>
+
+    <script>
+        const BASE_URL = "http://127.0.0.1:5000";
+
+
+        document.addEventListener("DOMContentLoaded", loadProductDetails);
+
+        async function loadProductDetails() {
+            const productId = localStorage.getItem("product_id");
+
+            if (!productId) {
+                alert("No product selected!");
+                window.location.href = "index.html";
+                return;
+            }
+
+            const res = await fetch(`${BASE_URL}/api/products`);
+            const products = await res.json();
+
+            const product = products.find(p => p.id == productId);
+
+            if (!product) {
+                alert("Product not found!");
+                return;
+            }
+
+            let html = `
+                <div style="display:flex; flex-wrap:wrap; gap:30px; align-items:flex-start;">
+
+                    <img src="${product.image_url}" 
+                         style="width:330px; height:330px; border-radius:16px; object-fit:cover; box-shadow: var(--soft-shadow);" >
+
+                    <div style="flex:1;">
+                        <h2 style="color:var(--red); font-weight:700;">${product.name}</h2>
+
+                        <h3 style="color:var(--orange); margin-top:10px;">₹${product.price}</h3>
+
+                        <p style="margin-top:10px; opacity:.8;"><strong>Stock:</strong> ${product.stock}</p>
+
+                        <p><strong>Cloth Type:</strong> ${product.cloth_type || "N/A"}</p>
+                        <p><strong>Design:</strong> ${product.design || "N/A"}</p>
+                        <p><strong>Size:</strong> ${product.size || "N/A"}</p>
+                        <p><strong>Color:</strong> ${product.color || "N/A"}</p>
+
+                        <label style="margin-top:20px; display:block; font-weight:600;">Quantity:</label>
+                        <input type="number" id="qty" min="1" value="1"
+                            style="padding:10px; width:90px; border:1px solid #ddd; border-radius:10px;">
+
+                        <button onclick="addToCart(${product.id})"
+                            class="btn white" 
+                            style="margin-top:20px; width:200px; background:var(--red); color:#fff;">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById("productBox").innerHTML = html;
+        }
+
+        async function addToCart(product_id) {
+
+    let user_id = localStorage.getItem("user_id");
+
+    if (!user_id) {
+        alert("Please login first!");
+        window.location.href = "login.html";
+        return;
+    }
+
+    let qty = parseInt(document.getElementById("qty").value);
+
+    // FIRST: get this product from backend to check stock
+    const productRes = await fetch(`${BASE_URL}/api/products`);
+    const productList = await productRes.json();
+    const product = productList.find(p => p.id == product_id);
+
+    if (!product) {
+        alert("Product not found.");
+        return;
+    }
+
+    // STOCK VALIDATION
+    if (qty > product.stock) {
+        alert(`Only ${product.stock} items in stock!`);
+        return;
+    }
+
+    // SEND TO BACKEND (Render)
+    const res = await fetch(`${BASE_URL}/api/cart/add`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            user_id: parseInt(user_id),
+            product_id: product_id,
+            qty: qty
+        })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+        alert(data.error);
+        return;
+    }
+
+    alert("Added to cart!");
+}
+
+
+    </script>
+<div id="toast" class="toast"></div>
+
+</body>
+</html>

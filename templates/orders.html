@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Chunri Store</title>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/products.css"> <!-- For same layout consistency -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="container header-inner">
+            <div class="brand">
+  <span class="brand-icon">🐼</span>
+  <span class="brand-text">Panda<span>Store</span></span>
+</div>
+
+            <div class="hamburger" onclick="toggleNav()">
+                <span></span><span></span><span></span>
+            </div>
+
+            <nav class="nav">
+                <ul class="nav-list">
+                    <li id="productsLink"><a href="index.html">Products</a></li>
+                    <li id="cartLink"><a href="cart.html">Cart</a></li>
+                    <li id="ordersLink"><a href="orders.html" style="color:var(--red);font-weight:700;">Orders</a></li>
+                    <li id="profileLink"><a href="profile.html">Profile</a></li>
+                    <li id="logoutLink" style="display:none;">
+                        <a href="login.html" onclick="logoutUser()">Logout</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+
+    <div class="container" style="padding: 35px 0;">
+        <h2 style="color: var(--red); font-weight:700;">My Orders</h2>
+
+        <div id="ordersList" style="margin-top: 25px;"></div>
+    </div>
+
+
+<script src="assets/js/app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  if (localStorage.getItem("loggedIn") !== "1") {
+    // 🔒 NOT login page — PUBLIC products page
+    window.location.replace("index.html");
+    return;
+  }
+  updateNavbar(true);
+  loadOrders();
+});
+
+async function loadOrders() {
+  try {
+    const res = await fetch(`${CONFIG.API}/orders`, {
+  headers: {
+    "X-USER-ID": localStorage.getItem("user_id")
+  }
+});
+
+    if (!res.ok) {
+      // backend says no → kick out safely
+      window.location.replace("index.html");
+      return;
+    }
+
+    const orders = await res.json();
+    const ordersList = document.getElementById("ordersList");
+
+    if (!orders.length) {
+      ordersList.innerHTML = "<h3>No orders found</h3>";
+      return;
+    }
+
+    let html = "";
+    orders.forEach(order => {
+      html += `
+        <div class="order-box" style="
+          border:1px solid #ddd;
+          padding:15px;
+          border-radius:10px;
+          margin-bottom:20px;
+        ">
+          <h4>Order ID: ${order.order_id}</h4>
+          <p>Total: ₹${order.total_price}</p>
+          <p>Status: ${order.payment_status}</p>
+          <p>Date: ${new Date(order.created_at).toLocaleString()}</p>
+
+          <button
+            style="padding:10px 15px; margin-top:10px; background:var(--red); color:white; border:none; border-radius:6px;"
+            onclick="downloadInvoice(${order.order_id})">
+            Download Invoice
+          </button>
+        </div>
+      `;
+    });
+
+    ordersList.innerHTML = html;
+
+  } catch (err) {
+    console.error("Order Fetch Error:", err);
+    window.location.replace("index.html");
+  }
+}
+
+function downloadInvoice(orderId) {
+  const userId = localStorage.getItem("user_id");
+
+  if (!userId) {
+    alert("User not logged in");
+    return;
+  }
+
+  window.open(
+    `${CONFIG.API}/invoice/${orderId}?user_id=${userId}`,
+    "_blank"
+  );
+}
+</script>
+<div id="toast" class="toast"></div>
+
+</body>
+</html>
