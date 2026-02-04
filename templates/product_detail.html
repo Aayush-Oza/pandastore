@@ -6,7 +6,7 @@
     <title>Chunri Store - Product Details</title>
 
     <!-- CSS -->
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -44,7 +44,7 @@
     </div>
 
     <!-- JS -->
-    <script src="assets/js/app.js"></script>
+    <script src="../assets/js/app.js"></script>
 
     <script>
 let currentProduct = null; // ✅ GLOBAL
@@ -57,7 +57,7 @@ async function loadProductDetails() {
 
   if (!productId) {
     showToast("No product selected");
-    location.href = "index.html";
+    location.href = "../index.html";
     return;
   }
 

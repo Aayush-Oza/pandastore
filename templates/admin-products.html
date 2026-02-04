@@ -86,11 +86,11 @@
 
         <nav class="nav">
             <ul class="nav-list">
-                <li><a href="dashboard.html">Dashboard</a></li>
-                <li><a href="customers.html">Customers</a></li>
-                <li><a href="orders.html">Orders</a></li>
-                <li><a href="add-product.html">Add Product</a></li>
-                <li><a href="admin-index.html" style="color:var(--red);font-weight:700;">Manage Products</a></li>
+                <li><a href="./templates/dashboard.html">Dashboard</a></li>
+                <li><a href="./templates/customers.html">Customers</a></li>
+                <li><a href="./templates/orders.html">Orders</a></li>
+                <li><a href="./templates/add-product.html">Add Product</a></li>
+                <li><a href="./templates/admin-index.html" style="color:var(--red);font-weight:700;">Manage Products</a></li>
                 <li><a href="#" onclick="logoutAdmin()">Logout</a></li>
             </ul>
         </nav>
@@ -146,7 +146,7 @@ if (localStorage.getItem("is_admin") !== "true") {
         <button class="btn" style="background:#aaa;" onclick="closePopup()">Cancel</button>
     </div>
 </div>
-
+<script src="../assets/js/app.js"></script>
 <script>
 const API = "https://chunri-backend.onrender.com/api";
 

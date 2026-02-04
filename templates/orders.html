@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders - Chunri Store</title>
 
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/products.css"> <!-- For same layout consistency -->
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/products.css"> <!-- For same layout consistency -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -25,12 +25,12 @@
 
             <nav class="nav">
                 <ul class="nav-list">
-                    <li id="productsLink"><a href="index.html">Products</a></li>
-                    <li id="cartLink"><a href="cart.html">Cart</a></li>
-                    <li id="ordersLink"><a href="orders.html" style="color:var(--red);font-weight:700;">Orders</a></li>
-                    <li id="profileLink"><a href="profile.html">Profile</a></li>
+                    <li id="productsLink"><a href="./index.html">Products</a></li>
+                    <li id="cartLink"><a href="./templates/cart.html">Cart</a></li>
+                    <li id="ordersLink"><a href="./templates/orders.html" style="color:var(--red);font-weight:700;">Orders</a></li>
+                    <li id="profileLink"><a href="./templates/profile.html">Profile</a></li>
                     <li id="logoutLink" style="display:none;">
-                        <a href="login.html" onclick="logoutUser()">Logout</a>
+                        <a href="./templates/login.html" onclick="logoutUser()">Logout</a>
                     </li>
                 </ul>
             </nav>
@@ -45,12 +45,12 @@
     </div>
 
 
-<script src="assets/js/app.js"></script>
+<script src="../assets/js/app.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   if (localStorage.getItem("loggedIn") !== "1") {
     // 🔒 NOT login page — PUBLIC products page
-    window.location.replace("index.html");
+    window.location.replace("../index.html");
     return;
   }
   updateNavbar(true);
@@ -67,7 +67,7 @@ async function loadOrders() {
 
     if (!res.ok) {
       // backend says no → kick out safely
-      window.location.replace("index.html");
+      window.location.replace("../index.html");
       return;
     }
 
@@ -106,7 +106,7 @@ async function loadOrders() {
 
   } catch (err) {
     console.error("Order Fetch Error:", err);
-    window.location.replace("index.html");
+    window.location.replace("../index.html");
   }
 }
 

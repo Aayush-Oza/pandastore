@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Orders - Chunri Store</title>
 
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -119,17 +119,17 @@
         </div>
         <nav class="nav">
             <ul class="nav-list">
-                <li><a href="dashboard.html">Dashboard</a></li>
-                <li><a href="add-product.html">Add Product</a></li>
-                 <li><a href="products.html">Manage Products</a></li>
-                <li><a href="customers.html">Customers</a></li> 
-                <li><a href="order.html" style="color:var(--red);font-weight:700;">Orders</a></li>
+                <li><a href="./templates/dashboard.html">Dashboard</a></li>
+                <li><a href="./templates/add-product.html">Add Product</a></li>
+                 <li><a href="./templates/products.html">Manage Products</a></li>
+                <li><a href="./templates/customers.html">Customers</a></li> 
+                <li><a href="./templates/order.html" style="color:var(--red);font-weight:700;">Orders</a></li>
                 <li><a href="#" onclick="logoutAdmin()">Logout</a></li>
             </ul>
         </nav>
     </div>
 </header>
-<script src="assets/js/app.js"></script>
+<script src="../assets/js/app.js"></script>
 <script>
 function logoutAdmin() {
     localStorage.removeItem("is_admin");

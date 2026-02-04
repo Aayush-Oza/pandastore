@@ -6,7 +6,7 @@
     <title>Chunri Store - Product Details</title>
 
     <!-- CSS -->
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -39,12 +39,9 @@
     </div>
 
     <!-- JS -->
-    <script src="assets/js/app.js"></script>
+    <script src="../assets/js/app.js"></script>
 
     <script>
-        const BASE_URL = "http://127.0.0.1:5000";
-
-
         document.addEventListener("DOMContentLoaded", loadProductDetails);
 
         async function loadProductDetails() {
@@ -52,11 +49,11 @@
 
             if (!productId) {
                 alert("No product selected!");
-                window.location.href = "index.html";
+                window.location.href = "../index.html";
                 return;
             }
 
-            const res = await fetch(`${BASE_URL}/api/products`);
+            const res = await fetch(`${CONFIG.API}/products`);
             const products = await res.json();
 
             const product = products.find(p => p.id == productId);
@@ -106,14 +103,14 @@
 
     if (!user_id) {
         alert("Please login first!");
-        window.location.href = "login.html";
+        window.location.href = "../login.html";
         return;
     }
 
     let qty = parseInt(document.getElementById("qty").value);
 
     // FIRST: get this product from backend to check stock
-    const productRes = await fetch(`${BASE_URL}/api/products`);
+    const productRes = await fetch(`${CONFIG.API}/products`);
     const productList = await productRes.json();
     const product = productList.find(p => p.id == product_id);
 

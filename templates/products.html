@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Products – Admin</title>
 
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
 
     <style>
         .product-card {
@@ -98,11 +98,11 @@ if (localStorage.getItem("is_admin") !== "true") {
         </div>
         <nav class="nav">
             <ul class="nav-list">
-                <li><a href="dashboard.html">Dashboard</a></li>
-                <li><a href="add-product.html">Add Product</a></li>
-                <li><a href="products.html" style="color:var(--red);font-weight:700;">Manage Products</a></li>
-                <li><a href="customers.html">Customers</a></li>
-                <li><a href="order.html">Orders</a></li>
+                <li><a href="./templates/dashboard.html">Dashboard</a></li>
+                <li><a href="./templates/add-product.html">Add Product</a></li>
+                <li><a href="./templates/products.html" style="color:var(--red);font-weight:700;">Manage Products</a></li>
+                <li><a href="./templates/customers.html">Customers</a></li>
+                <li><a href="./templates/order.html">Orders</a></li>
                 <li><a href="#" onclick="logoutAdmin()">Logout</a></li>
             </ul>
         </nav>
@@ -113,7 +113,7 @@ if (localStorage.getItem("is_admin") !== "true") {
     <h2 style="color:var(--red);font-weight:800;">Manage Products</h2>
     <div id="productList" style="margin-top:25px;"></div>
 </div>
-<script src="assets/js/app.js"></script>
+<script src="../assets/js/app.js"></script>
 <script>
 let PRODUCTS = [];
 

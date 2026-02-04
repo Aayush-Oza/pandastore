@@ -91,11 +91,11 @@
         </div>
         <nav class="nav">
             <ul class="nav-list">
-                <li><a href="dashboard.html">Dashboard</a></li>
-                <li><a href="add-product.html">Add Product</a></li>
-                 <li><a href="products.html">Manage Products</a></li>
-                <li><a href="customers.html" style="color:var(--red);font-weight:700;">Customers</a></li>
-                <li><a href="order.html">Orders</a></li>
+                <li><a href="./templates/dashboard.html">Dashboard</a></li>
+                <li><a href="./templates/add-product.html">Add Product</a></li>
+                 <li><a href="./templates/products.html">Manage Products</a></li>
+                <li><a href="./templates/customers.html" style="color:var(--red);font-weight:700;">Customers</a></li>
+                <li><a href="./templates/order.html">Orders</a></li>
                 <li><a href="#" onclick="logoutAdmin()">Logout</a></li>
             </ul>
         </nav>
@@ -121,7 +121,7 @@ if (localStorage.getItem("is_admin") !== "true") {
 
     <div id="customerList"></div>
 </div>
-<script src="assets/js/app.js"></script>
+<script src="../assets/js/app.js"></script>
 <script>
 async function loadCustomers() {
     const res = await fetch(`${CONFIG.BASE_URL}/admin/customers`);

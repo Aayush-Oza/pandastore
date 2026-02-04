@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile - Chunri Store</title>
 
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -120,12 +120,12 @@
 
             <nav class="nav">
                 <ul class="nav-list">
-                    <li id="productsLink"><a href="index.html">Products</a></li>
-                    <li id="cartLink"><a href="cart.html">Cart</a></li>
-                    <li id="ordersLink"><a href="orders.html">Orders</a></li>
-                    <li id="profileLink"><a href="profile.html" style="color:var(--red);font-weight:700;">Profile</a></li>
+                    <li id="productsLink"><a href="./index.html">Products</a></li>
+                    <li id="cartLink"><a href="./templates/cart.html">Cart</a></li>
+                    <li id="ordersLink"><a href="./templates/orders.html">Orders</a></li>
+                    <li id="profileLink"><a href="./templates/profile.html" style="color:var(--red);font-weight:700;">Profile</a></li>
                     <li id="logoutLink" style="display:none;">
-                        <a href="login.html" onclick="logoutUser()">Logout</a>
+                        <a href="./templates/login.html" onclick="logoutUser()">Logout</a>
                     </li>
                 </ul>
             </nav>
@@ -181,11 +181,11 @@
 
     </div>
 
-<script src="assets/js/app.js"></script>
+<script src="../assets/js/app.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   if (localStorage.getItem("loggedIn") !== "1") {
-    window.location.replace("login.html");
+    window.location.replace("../login.html");
     return;
   }
 

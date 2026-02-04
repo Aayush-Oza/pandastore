@@ -12,6 +12,6 @@ function downloadInvoice() {
     return;
   }
 
-  window.location.href = `http://127.0.0.1:5000/api/invoice/${order_id}`;
+  window.location.href = `${CONFIG.API}/invoice/${order_id}`;
 }
 </script>
