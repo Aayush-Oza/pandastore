@@ -1,54 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chunri Store - Product Details</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panda Store – Product Details</title>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="../assets/css/style.css">
+  <!-- CSS -->
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/product_detail.css">
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- HEADER -->
-    <header class="header">
-        <div class="container header-inner">
-            <div class="brand">
-  <span class="brand-icon">🐼</span>
-  <span class="brand-text">Panda<span>Store</span></span>
-</div>
-
-            <div class="hamburger" onclick="toggleNav()">
-                <span></span><span></span><span></span>
-            </div>
-
-            <nav class="nav">
-                <ul class="nav-list">
-  <li id="loginLink"><a href="login.html">Login</a></li>
-  <li id="productsLink"><a href="index.html">Products</a></li>
-  <li id="cartLink" style="display:none;"><a href="cart.html">Cart</a></li>
-  <li id="ordersLink" style="display:none;"><a href="orders.html">Orders</a></li>
-  <li id="profileLink" style="display:none;"><a href="profile.html">Profile</a></li>
-  <li id="logoutLink" style="display:none;"><a href="#" onclick="logoutUser()">Logout</a></li>
-</ul>
-            </nav>
-        </div>
-    </header>
-
-    <!-- PRODUCT DETAILS -->
-    <div class="container" style="padding: 35px 0;">
-        <div id="productBox"></div>
+<header class="header">
+  <div class="container header-inner">
+    <div class="brand">
+      <span class="brand-icon">🐼</span>
+      <span class="brand-text">Panda<span>Store</span></span>
     </div>
 
-    <!-- JS -->
-    <script src="../assets/js/app.js"></script>
+    <div class="hamburger" onclick="toggleNav()">
+      <span></span><span></span><span></span>
+    </div>
 
-    <script>
-let currentProduct = null; // ✅ GLOBAL
+    <nav class="nav">
+      <ul class="nav-list">
+        <li><a href="/pandastore/index.html">Products</a></li>
+        <li><a href="/pandastore/templates/cart.html">Cart</a></li>
+        <li><a href="/pandastore/templates/orders.html">Orders</a></li>
+        <li><a href="/pandastore/templates/profile.html">Profile</a></li>
+        <li><a href="#" onclick="logoutUser()">Logout</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
 
+<main class="container product-page">
+  <div id="productBox"></div>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script src="../assets/js/app.js"></script>
+
+<script>
 document.addEventListener("DOMContentLoaded", loadProductDetails);
 
 async function loadProductDetails() {
@@ -56,59 +53,51 @@ async function loadProductDetails() {
   const productId = params.get("id");
 
   if (!productId) {
-    showToast("No product selected");
-    location.href = "/pandastore/index.html";
+    window.location.href = "/pandastore/index.html";
     return;
   }
 
   const res = await fetch(`${CONFIG.API}/products`);
   const products = await res.json();
-
   const product = products.find(p => p.id == productId);
+
   if (!product) {
-    showToast("Product not found");
+    showToast("Product not found", "error");
     return;
   }
 
-  currentProduct = product; // ✅ THIS IS THE KEY LINE
-
   document.getElementById("productBox").innerHTML = `
-    <div class="product-detail">
-      <div class="product-media">
-        <img src="${product.image_url || 'https://via.placeholder.com/500'}">
+    <div class="product-detail-card">
+      
+      <div class="product-image">
+        <img src="${product.image_url || 'https://via.placeholder.com/600'}" alt="${product.name}">
       </div>
 
-      <div class="product-info">
-        <span class="product-category">${product.category}</span>
-        <h1 class="product-title">${product.name}</h1>
-        <div class="product-no">Product No · ${product.product_no}</div>
-        <div class="product-price">₹${product.price}</div>
+      <div class="product-content">
+        <span class="category">${product.category || "General"}</span>
+        <h1 class="title">${product.name}</h1>
 
-        <div class="product-stock ${product.stock > 0 ? "in" : "out"}">
-          ${product.stock > 0
-            ? `In stock (${product.stock})`
-            : "Out of stock"}
+        <div class="price-row">
+          <span class="price">₹${product.price}</span>
+          <span class="stock ${product.stock > 0 ? "in" : "out"}">
+            ${product.stock > 0 ? `In stock (${product.stock})` : "Out of stock"}
+          </span>
         </div>
 
-        ${product.description ? `<p class="product-desc">${product.description}</p>` : ""}
+        ${product.description ? `<p class="description">${product.description}</p>` : ""}
 
-        <div class="product-actions">
+        <div class="buy-box">
           <input id="qty" type="number" min="1" value="1">
-          <button onclick="handleProductAdd(${product.id})">
-  Add to Cart
-</button>
+          <button ${product.stock <= 0 ? "disabled" : ""} onclick="addToCart(${product.id})">
+            ${product.stock > 0 ? "Add to Cart" : "Unavailable"}
+          </button>
         </div>
       </div>
+
     </div>
   `;
 }
-function handleProductAdd(product_id) {
-  const qtyInput = document.getElementById("qty");
-  const qty = Number(qtyInput.value) || 1;
-
-  addToCart(product_id, qty);
-}
 </script>
-<div id="toast" class="toast"></div>
+
 </body>
 </html>
