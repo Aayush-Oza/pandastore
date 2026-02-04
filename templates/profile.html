@@ -313,14 +313,15 @@ newPasswordInput.addEventListener("input", () => {
 async function changePassword() {
   const oldPwd = old_password.value.trim();
   const newPwd = new_password.value.trim();
+  const userId = localStorage.getItem("user_id");
 
   if (!oldPwd || !newPwd) {
     showMessage("Both password fields are required", "error");
     return;
   }
 
-  if (!strongPasswordRegex.test(newPwd)) {
-    showMessage("New password does not meet requirements", "error");
+  if (!userId) {
+    showMessage("User not logged in", "error");
     return;
   }
 
@@ -328,6 +329,7 @@ async function changePassword() {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
+      user_id: userId,
       old_password: oldPwd,
       new_password: newPwd
     })
@@ -341,9 +343,6 @@ async function changePassword() {
   }
 
   showMessage("Password updated successfully!", "success");
-  old_password.value = "";
-  new_password.value = "";
-  passwordMsg.style.display = "none";
 }
 
 // ---------------- SHOW MESSAGE ----------------
