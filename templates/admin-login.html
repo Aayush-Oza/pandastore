@@ -80,18 +80,16 @@ async function adminLogin() {
     }
 
     let res;
-    try {
-     fetch(`${CONFIG.API}/auth/admin/login`, {
- {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ email, password })
-});
-    }
-    catch (error) {
-        msg.innerHTML = "Backend not reachable!";
-        return;
-    }
+try {
+  res = await fetch(`${CONFIG.API}/auth/admin/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
+} catch (error) {
+  msg.innerHTML = "Backend not reachable!";
+  return;
+}
 
     let data;
     try {
