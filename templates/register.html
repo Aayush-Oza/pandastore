@@ -94,7 +94,6 @@ const strongPasswordRegex =
 const passwordInput = document.getElementById("password");
 const confirmInput = document.getElementById("confirmPassword");
 const passwordMsg = document.getElementById("passwordMsg");
-const otpBtn = document.querySelector(".otp-btn");
 
 // 🔴🟢 LIVE PASSWORD VALIDATION
 passwordInput.addEventListener("input", () => {
@@ -102,7 +101,6 @@ passwordInput.addEventListener("input", () => {
 
   if (!value) {
     passwordMsg.style.display = "none";
-    otpBtn.disabled = true;
     return;
   }
 
@@ -111,7 +109,6 @@ passwordInput.addEventListener("input", () => {
   if (strongPasswordRegex.test(value)) {
     passwordMsg.style.color = "green";
     passwordMsg.textContent = "Strong password ✔";
-    otpBtn.disabled = false;
   } else {
     passwordMsg.style.color = "#d62828";
     passwordMsg.innerHTML = `
@@ -122,7 +119,6 @@ passwordInput.addEventListener("input", () => {
       <br>• 1 number
       <br>• 1 special character
     `;
-    otpBtn.disabled = true;
   }
 });
 
@@ -159,14 +155,19 @@ async function registerUser() {
     return;
   }
 
+  const nameInput = document.getElementById("name");
+  const emailInput = document.getElementById("email");
+  const phoneInput = document.getElementById("phone");
+  const addressInput = document.getElementById("address");
+
   const res = await fetch(`${CONFIG.API}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      name: name.value.trim(),
-      email: email.value.trim(),
-      phone: phone.value.trim(),
-      address: address.value.trim(),
+      name: nameInput.value.trim(),
+      email: emailInput.value.trim(),
+      phone: phoneInput.value.trim(),
+      address: addressInput.value.trim(),
       password: passwordInput.value
     })
   });
@@ -179,7 +180,9 @@ async function registerUser() {
   }
 
   showToast("Registration successful");
-  setTimeout(() => location.href = "login.html", 1200);
+  setTimeout(() => {
+    window.location.href = "login.html";
+  }, 1200);
 }
 
 </script>
