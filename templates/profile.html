@@ -190,23 +190,21 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  updateNavbar();
+  updateNavbar(true);
   loadProfile();
 });
 
 // ---------------- LOAD PROFILE ----------------
-window.onload = function () {
-    updateNavbar(true);
-    loadProfile();
-};
-
 async function loadProfile() {
   try {
-    const res = await fetch(`${CONFIG.API}/auth/profile`);
+    const res = await fetch(`${CONFIG.API}/auth/profile`, {
+      headers: {
+        "X-USER-ID": localStorage.getItem("user_id")
+      }
+    });
 
     if (!res.ok) {
-      location.href = "login.html";
-      return;
+      throw new Error("Unauthorized");
     }
 
     const data = await res.json();
@@ -218,7 +216,8 @@ async function loadProfile() {
 
   } catch (err) {
     console.error(err);
-    location.href = "login.html";
+    localStorage.clear();
+    window.location.replace("login.html");
   }
 }
 
