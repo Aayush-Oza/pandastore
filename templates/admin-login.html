@@ -81,7 +81,8 @@ async function adminLogin() {
 
     let res;
     try {
-     res = await fetch(`${CONFIG.BASE_URL}/api/auth/login`, {
+     fetch(`${CONFIG.API}/auth/admin/login`, {
+ {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ email, password })
