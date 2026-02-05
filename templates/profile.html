@@ -231,10 +231,13 @@ async function updateProfile() {
   };
 
   const res = await fetch(`${CONFIG.API}/auth/profile/update`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body)
-  });
+  method: "PUT",
+  headers: {
+    "Content-Type": "application/json",
+    "X-USER-ID": localStorage.getItem("user_id")
+  },
+  body: JSON.stringify(body)
+});
 
   const data = await res.json();
 
