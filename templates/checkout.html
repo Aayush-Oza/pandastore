@@ -177,7 +177,11 @@ async function loadCartSummary() {
 
 async function loadSavedAddress() {
   try {
-    const res = await fetch(`${CONFIG.API}/auth/profile`);
+    const res = await fetch(`${CONFIG.API}/auth/profile`, {
+  headers: {
+    "X-USER-ID": localStorage.getItem("user_id")
+  }
+});
     if (!res.ok) return;
 
     const p = await res.json();
