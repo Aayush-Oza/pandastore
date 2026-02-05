@@ -260,33 +260,6 @@ newPasswordInput.addEventListener("input", () => {
 
   if (!value) {
     passwordMsg.style.display = "none";
-    return;
-  }
-
-  passwordMsg.style.display = "block";
-
-  if (strongPasswordRegex.test(value)) {
-    passwordMsg.style.color = "green";
-    passwordMsg.textContent = "Strong password ✔";
-  } else {
-    passwordMsg.style.color = "#d62828";
-    passwordMsg.innerHTML = `
-      Password must contain:
-      <br>• 8+ characters
-      <br>• 1 uppercase letter
-      <br>• 1 lowercase letter
-      <br>• 1 number
-      <br>• 1 special character
-    `;
-  }
-});
-const changePwdBtn = document.getElementById("changePwdBtn");
-
-newPasswordInput.addEventListener("input", () => {
-  const value = newPasswordInput.value.trim();
-
-  if (!value) {
-    passwordMsg.style.display = "none";
     changePwdBtn.disabled = true;
     return;
   }
@@ -310,7 +283,6 @@ newPasswordInput.addEventListener("input", () => {
     changePwdBtn.disabled = true;
   }
 });
-
 // ---------------- CHANGE PASSWORD ----------------
 async function changePassword() {
   const oldPwd = old_password.value.trim();
