@@ -119,14 +119,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 });
-// ---------- TOAST ----------
-function showToast(msg){
-    const t=document.getElementById("toast");
-    t.innerText=msg;
-    t.className="toast show";
-    setTimeout(()=>t.className="toast",3000);
-}
-
 // ---------- ADDRESS MODE ----------
 function handleAddressMode(){
     const mode=document.getElementById("addressMode").value;
