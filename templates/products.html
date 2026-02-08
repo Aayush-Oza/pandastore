@@ -148,8 +148,9 @@ if (localStorage.getItem("is_admin") !== "true") {
 <header class="header">
   <div class="container header-inner">
     <div class="brand">Admin<span style="color:var(--orange)">Panel</span></div>
-    <hamburger onclick="toggleNav()">
-      <span></span><span></span><span></span>
+    <div class="hamburger" onclick="toggleNav()">
+            <span></span><span></span><span></span>
+        </div>
     <nav class="nav">
       <ul class="nav-list">
         <li><a href="dashboard.html">Dashboard</a></li>

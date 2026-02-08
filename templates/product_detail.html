@@ -68,8 +68,9 @@
       <span class="brand-icon">🐼</span>
       <span class="brand-text">Panda<span>Store</span></span>
     </div>
-    <hamburger onclick="toggleNav()">
-      <span></span><span></span><span></span>
+    <div class="hamburger" onclick="toggleNav()">
+            <span></span><span></span><span></span>
+        </div>
     <nav class="nav">
       <ul class="nav-list">
         <li><a href="/pandastore/index.html">Products</a></li>
@@ -197,7 +198,7 @@ function renderSuggestions(current, allProducts) {
     p => p.id !== current.id && p.category === current.category
   );
 
-  if (suggestions.length < 4) {
+  if (suggestions.length < 10) {
     const others = allProducts.filter(
       p => p.id !== current.id && p.category !== current.category
     );
