@@ -80,10 +80,9 @@ async function addToCart(product_id, quantity = 1) {
 // NAVBAR (STATIC FOR NOW)
 // ---------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
-  const loggedIn = localStorage.getItem("loggedIn") === "1";
+  const loggedIn = !!localStorage.getItem("user_id");
   updateNavbar(loggedIn);
 });
-
 // ---------------------------------------------
 // NAVBAR STATE CONTROL (FINAL, CLEAN)
 // ---------------------------------------------
@@ -125,6 +124,33 @@ function logoutUser() {
   // 🔥 history-safe redirect to PUBLIC products page
   window.location.replace("index.html");
 }
+function requireLogin(redirect = true) {
+  const userId = localStorage.getItem("user_id");
+  if (userId) return true;
 
+  showToast("Please login to continue", "error");
 
+  if (redirect) {
+    setTimeout(() => {
+      window.location.href = "/pandastore/templates/login.html";
+    }, 1200);
+  }
+  return false;
+}
+function handleAddToCart(productId) {
+  if (!requireLogin()) return;
+  addToCart(productId);
+}
+// ---------------------------------------------
+// PROTECT PRIVATE NAV LINKS (GLOBAL)
+// ---------------------------------------------
+document.addEventListener("DOMContentLoaded", () => {
+  document
+    .querySelectorAll('a[href*="cart"], a[href*="orders"], a[href*="profile"]')
+    .forEach(link => {
+      link.addEventListener("click", e => {
+        if (!requireLogin()) e.preventDefault();
+      });
+    });
+});
 

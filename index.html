@@ -156,7 +156,7 @@ function renderProductCard(p) {
       ${
         out
           ? `<button disabled>Unavailable</button>`
-          : `<button onclick="addToCart(${p.id})">Add to Cart</button>`
+          : `<button onclick="handleAddToCart(${p.id})">Add to Cart</button>`
       }
     </div>
   `;
