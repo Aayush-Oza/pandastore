@@ -68,7 +68,8 @@
       <span class="brand-icon">🐼</span>
       <span class="brand-text">Panda<span>Store</span></span>
     </div>
-
+    <hamburger onclick="toggleNav()">
+      <span></span><span></span><span></span>
     <nav class="nav">
       <ul class="nav-list">
         <li><a href="/pandastore/index.html">Products</a></li>
@@ -83,6 +84,10 @@
 
 <main class="container product-page">
   <div id="productBox"></div>
+  <section class="suggestions">
+  <h3>You may also like</h3>
+  <div id="suggestionGrid" class="suggestion-grid"></div>
+</section>
 </main>
 
 <div id="toast" class="toast"></div>
@@ -107,7 +112,7 @@ async function loadProductDetails() {
     showToast("Product not found", "error");
     return;
   }
-
+  currentIndex = 0;   
   images = product.images || [];
 
   document.getElementById("productBox").innerHTML = `
@@ -140,6 +145,7 @@ async function loadProductDetails() {
 
     </div>
   `;
+  renderSuggestions(product, products);
 }
 
 /* IMAGE RENDER */
@@ -183,6 +189,32 @@ function updateSlide() {
     d.classList.toggle("active", i === currentIndex)
   );
 }
+function renderSuggestions(current, allProducts) {
+  const grid = document.getElementById("suggestionGrid");
+  if (!grid) return;
+
+  let suggestions = allProducts.filter(
+    p => p.id !== current.id && p.category === current.category
+  );
+
+  if (suggestions.length < 4) {
+    const others = allProducts.filter(
+      p => p.id !== current.id && p.category !== current.category
+    );
+    suggestions = suggestions.concat(others);
+  }
+
+  suggestions = suggestions.slice(0, 4);
+
+  grid.innerHTML = suggestions.map(p => `
+    <div class="suggestion-card" onclick="openProduct(${p.id})">
+      <img src="${p.images?.[0]?.url || '../assets/img/no-image.png'}">
+      <h4>${p.name}</h4>
+      <span>₹${p.price}</span>
+    </div>
+  `).join("");
+}
+
 </script>
 
 </body>

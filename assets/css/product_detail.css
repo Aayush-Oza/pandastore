@@ -92,3 +92,47 @@
     grid-template-columns: 1fr;
   }
 }
+.suggestions {
+  margin-top: 50px;
+}
+
+.suggestions h3 {
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.suggestion-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.suggestion-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.08);
+  cursor: pointer;
+  transition: transform .2s;
+}
+
+.suggestion-card:hover {
+  transform: translateY(-4px);
+}
+
+.suggestion-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.suggestion-card h4 {
+  font-size: 14px;
+  margin: 8px 0 4px;
+}
+
+.suggestion-card span {
+  font-weight: 600;
+  color: var(--red);
+}
