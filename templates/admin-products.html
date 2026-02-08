@@ -119,9 +119,6 @@ if (localStorage.getItem("is_admin") !== "true") {
                 <th>Name</th>
                 <th>Price</th>
                 <th>Stock</th>
-                <th>Cloth</th>
-                <th>Design</th>
-                <th>Color</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -137,11 +134,6 @@ if (localStorage.getItem("is_admin") !== "true") {
         <input id="editName" placeholder="Name">
         <input id="editPrice" placeholder="Price" type="number">
         <input id="editStock" placeholder="Stock" type="number">
-        <input id="editCloth" placeholder="Cloth Type">
-        <input id="editDesign" placeholder="Design">
-        <input id="editColor" placeholder="Color">
-        
-
         <button class="btn" style="background:var(--orange);" onclick="saveProduct()">Save</button>
         <button class="btn" style="background:#aaa;" onclick="closePopup()">Cancel</button>
     </div>
@@ -178,9 +170,6 @@ async function loadProducts() {
                 <td>${p.name}</td>
                 <td>₹${p.price}</td>
                 <td>${p.stock}</td>
-                <td>${p.cloth_type}</td>
-                <td>${p.design}</td>
-                <td>${p.color}</td>
 
                 <td>
                     <button class="btn edit-btn" onclick="openEdit(${p.id})">Edit</button>
@@ -203,10 +192,6 @@ function openEdit(id) {
             document.getElementById("editName").value = p.name;
             document.getElementById("editPrice").value = p.price;
             document.getElementById("editStock").value = p.stock;
-            document.getElementById("editCloth").value = p.cloth_type;
-            document.getElementById("editDesign").value = p.design;
-            document.getElementById("editColor").value = p.color;
-            document.getElementById("editImage").value = p.image_url;
         });
 }
 
@@ -219,10 +204,6 @@ async function saveProduct() {
         name: document.getElementById("editName").value,
         price: Number(document.getElementById("editPrice").value),
         stock: Number(document.getElementById("editStock").value),
-        cloth_type: document.getElementById("editCloth").value,
-        design: document.getElementById("editDesign").value,
-        color: document.getElementById("editColor").value,
-        image_url: document.getElementById("editImage").value
     };
 
     await fetch(`${API}/product/${editingId}`, {
