@@ -48,40 +48,92 @@
 
     </div>
 </header>
-
 <div class="auth-box">
-    <h2>Create Account</h2>
+  <h2>Create Account</h2>
 
-    <input class="input-field" id="name" placeholder="Full Name" required>
+  <form id="registerForm" onsubmit="registerUser(event)">
 
-    <input class="input-field" id="email" placeholder="Email Address" required>
+    <input
+      class="input-field"
+      id="name"
+      name="name"
+      type="text"
+      placeholder="Full Name"
+      required
+      minlength="3"
+      autocomplete="name"
+    >
 
-    <input class="input-field" id="phone" placeholder="Phone Number" required>
+    <input
+      class="input-field"
+      id="email"
+      name="email"
+      type="email"
+      placeholder="Email Address"
+      autocomplete="email"
+      required
+    >
 
-    <input class="input-field" id="address" placeholder="Address" required>
+    <input
+      class="input-field"
+      id="phone"
+      name="phone"
+      type="tel"
+      placeholder="Phone Number"
+      required
+      maxlength="10"
+      inputmode="numeric"
+      autocomplete="tel"
+      oninput="this.value=this.value.replace(/[^0-9]/g,'')"
+    >
+
+    <input
+      class="input-field"
+      id="address"
+      name="address"
+      type="text"
+      placeholder="Address"
+      required
+      minlength="10"
+      autocomplete="street-address"
+    >
 
     <div class="password-wrap">
-    <input type="password" id="password" class="input-field" placeholder="Create Password" required>
-    <span class="eye" onclick="togglePassword('password', this)">👁️</span>
-</div>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        class="input-field"
+        placeholder="Create Password"
+        autocomplete="new-password"
+        required
+      >
+      <span class="eye" onclick="togglePassword('password', this)">👁️</span>
+    </div>
 
-<div class="password-wrap">
-    <input type="password" id="confirmPassword" class="input-field" placeholder="Confirm Password" required>
-    <span class="eye" onclick="togglePassword('confirmPassword', this)">👁️</span>
-</div>
-    <p id="passwordMsg" style="
-  margin-top:8px;
-  font-size:14px;
-  display:none;
-"></p>
-    <button onclick="registerUser()">Register</button>
+    <div class="password-wrap">
+      <input
+        type="password"
+        id="confirmPassword"
+        name="confirmPassword"
+        class="input-field"
+        placeholder="Confirm Password"
+        required
+      >
+      <span class="eye" onclick="togglePassword('confirmPassword', this)">👁️</span>
+    </div>
+
+    <p id="passwordMsg" style="margin-top:8px;font-size:14px;display:none;"></p>
+
+    <button type="submit">Register</button>
 
     <p style="margin-top: 10px; text-align:center;">
-        Already have an account? 
-        <a href="login.html" style="color: var(--orange); font-weight:700;">Login</a>
+      Already have an account?
+      <a href="login.html" style="color: var(--orange); font-weight:700;">Login</a>
     </p>
-</div>
 
+  </form>
+</div>
 
 <!-- TOAST -->
 <div id="toast" class="toast"></div>
@@ -90,7 +142,8 @@
 // 🔐 PASSWORD RULE
 const strongPasswordRegex =
 /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^\d{10}$/;
 const passwordInput = document.getElementById("password");
 const confirmInput = document.getElementById("confirmPassword");
 const passwordMsg = document.getElementById("passwordMsg");
@@ -122,8 +175,6 @@ passwordInput.addEventListener("input", () => {
   }
 });
 
-
-
 function togglePassword(fieldId, icon) {
     const input = document.getElementById(fieldId);
 
@@ -136,31 +187,61 @@ function togglePassword(fieldId, icon) {
     }
 }
 
-async function registerUser() {
-  if (!strongPasswordRegex.test(passwordInput.value)) {
-    showToast("Weak password");
-    return;
-  }
-
-  if (passwordInput.value !== confirmInput.value) {
-    showToast("Passwords do not match");
-    return;
-  }
+async function registerUser(event) {
+  const submitBtn = document.querySelector("#registerForm button");
+  submitBtn.disabled = true;
+  event.preventDefault();
 
   const nameInput = document.getElementById("name");
   const emailInput = document.getElementById("email");
   const phoneInput = document.getElementById("phone");
   const addressInput = document.getElementById("address");
 
+  const name = nameInput.value.trim();
+  const email = emailInput.value.trim();
+  const phone = phoneInput.value.trim();
+  const address = addressInput.value.trim();
+
+  if (!name || !email || !phone || !address || !passwordInput.value) {
+    showToast("All fields are required");
+    submitBtn.disabled = false;
+    return;
+  }
+
+  if (!emailRegex.test(email)) {
+  showToast("Invalid email format");
+  submitBtn.disabled = false;
+  return;
+}
+
+  if (!phoneRegex.test(phone)) {
+    showToast("Phone number must be exactly 10 digits");
+    submitBtn.disabled = false;
+    return;
+  }
+
+  if (passwordInput.value !== confirmInput.value) {
+  showToast("Passwords do not match");
+  submitBtn.disabled = false;
+  return;
+}
+
+if (!strongPasswordRegex.test(passwordInput.value)) {
+  showToast("Weak password");
+  submitBtn.disabled = false;
+  return;
+}
+
   const res = await fetch(`${CONFIG.API}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      name: nameInput.value.trim(),
-      email: emailInput.value.trim(),
-      phone: phoneInput.value.trim(),
-      address: addressInput.value.trim(),
-      password: passwordInput.value
+      name,
+      email,
+      phone,
+      address,
+      password: passwordInput.value.trim()
+
     })
   });
 
@@ -168,10 +249,12 @@ async function registerUser() {
 
   if (!res.ok) {
     showToast(data.error || "Registration failed");
+    submitBtn.disabled = false;
     return;
   }
 
   showToast("Registration successful");
+
   setTimeout(() => {
     window.location.href = "login.html";
   }, 1200);
