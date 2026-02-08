@@ -5,13 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panda Store – Product Details</title>
 
-  <!-- CSS -->
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/product_detail.css">
 
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    .slider {
+      position: relative;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .slider img {
+      width: 100%;
+      border-radius: 14px;
+      object-fit: cover;
+    }
+
+    .slider-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,.6);
+      color: white;
+      border: none;
+      font-size: 18px;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+
+    .prev { left: 8px; }
+    .next { right: 8px; }
+
+    .dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ccc;
+      cursor: pointer;
+    }
+
+    .dot.active {
+      background: var(--red);
+    }
+  </style>
 </head>
+
 <body>
 
 <header class="header">
@@ -19,10 +67,6 @@
     <div class="brand">
       <span class="brand-icon">🐼</span>
       <span class="brand-text">Panda<span>Store</span></span>
-    </div>
-
-    <div class="hamburger" onclick="toggleNav()">
-      <span></span><span></span><span></span>
     </div>
 
     <nav class="nav">
@@ -46,31 +90,31 @@
 <script src="../assets/js/app.js"></script>
 
 <script>
+let currentIndex = 0;
+let images = [];
+
 document.addEventListener("DOMContentLoaded", loadProductDetails);
 
 async function loadProductDetails() {
-  const params = new URLSearchParams(window.location.search);
-  const productId = params.get("id");
-
-  if (!productId) {
-    window.location.href = "/pandastore/index.html";
-    return;
-  }
+  const id = new URLSearchParams(window.location.search).get("id");
+  if (!id) location.href = "/pandastore/index.html";
 
   const res = await fetch(`${CONFIG.API}/products`);
   const products = await res.json();
-  const product = products.find(p => p.id == productId);
+  const product = products.find(p => p.id == id);
 
   if (!product) {
     showToast("Product not found", "error");
     return;
   }
 
+  images = product.images || [];
+
   document.getElementById("productBox").innerHTML = `
     <div class="product-detail-card">
-      
+
       <div class="product-image">
-        <img src="${product.image_url || 'https://via.placeholder.com/600'}" alt="${product.name}">
+        ${renderImages()}
       </div>
 
       <div class="product-content">
@@ -96,6 +140,48 @@ async function loadProductDetails() {
 
     </div>
   `;
+}
+
+/* IMAGE RENDER */
+function renderImages() {
+  if (!images.length) {
+    return `<img src="../assets/img/no-image.png">`;
+  }
+
+  if (images.length === 1) {
+    return `<img src="${images[0].url}">`;
+  }
+
+  return `
+    <div class="slider">
+      <img src="${images[0].url}" id="sliderImg">
+      <button class="slider-btn prev" onclick="changeSlide(-1)">‹</button>
+      <button class="slider-btn next" onclick="changeSlide(1)">›</button>
+    </div>
+    <div class="dots">
+      ${images.map((_, i) =>
+        `<div class="dot ${i === 0 ? "active" : ""}" onclick="goToSlide(${i})"></div>`
+      ).join("")}
+    </div>
+  `;
+}
+
+/* SLIDER LOGIC */
+function changeSlide(dir) {
+  currentIndex = (currentIndex + dir + images.length) % images.length;
+  updateSlide();
+}
+
+function goToSlide(i) {
+  currentIndex = i;
+  updateSlide();
+}
+
+function updateSlide() {
+  document.getElementById("sliderImg").src = images[currentIndex].url;
+  document.querySelectorAll(".dot").forEach((d, i) =>
+    d.classList.toggle("active", i === currentIndex)
+  );
 }
 </script>
 

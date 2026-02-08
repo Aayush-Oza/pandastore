@@ -148,11 +148,15 @@ if (localStorage.getItem("is_admin") !== "true") {
 <header class="header">
   <div class="container header-inner">
     <div class="brand">Admin<span style="color:var(--orange)">Panel</span></div>
+    <hamburger onclick="toggleNav()">
+      <span></span><span></span><span></span>
     <nav class="nav">
       <ul class="nav-list">
         <li><a href="dashboard.html">Dashboard</a></li>
         <li><a href="add-product.html">Add Product</a></li>
         <li><a href="products.html" style="color:var(--red);font-weight:700;">Manage Products</a></li>
+        <li><a href="customers.html">Customers</a></li>
+        <li><a href="order.html">Orders</a></li>
         <li><a href="#" onclick="logoutAdmin()">Logout</a></li>
       </ul>
     </nav>
@@ -242,7 +246,7 @@ function openEdit(id){
   modal.innerHTML=`
     <div class="modal-box">
       <h3>Edit Product</h3>
-      <input id="product_no" value="${p.product_no}" disabled>
+      <input id="product_no" value="${p.product_no}">
       <input id="e_name" value="${p.name}">
       <input id="e_price" type="number" value="${p.price}">
       <input id="e_stock" type="number" value="${p.stock}">
