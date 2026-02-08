@@ -198,14 +198,14 @@ function renderSuggestions(current, allProducts) {
     p => p.id !== current.id && p.category === current.category
   );
 
-  if (suggestions.length < 10) {
+  if (suggestions.length < 4) {
     const others = allProducts.filter(
       p => p.id !== current.id && p.category !== current.category
     );
     suggestions = suggestions.concat(others);
   }
 
-  suggestions = suggestions.slice(0, 4);
+  suggestions = suggestions.slice(0, 10);
 
   grid.innerHTML = suggestions.map(p => `
     <div class="suggestion-card" onclick="openProduct(${p.id})">
