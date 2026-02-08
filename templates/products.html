@@ -1,283 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Products – Admin</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Products – Admin</title>
 
-    <link rel="stylesheet" href="../assets/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
-    <style>
-        .product-card {
-    background: white;
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-}
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
 
-.product-card img {
-    width: 90px;
-    height: 90px;
-    border-radius: 10px;
-    object-fit: cover;
-    flex-shrink: 0;
-}
+  <style>
+    body { background:#f7f7f7; font-family:Poppins,sans-serif; }
 
-.product-actions {
-    display: flex;
-    gap: 8px;
-    margin-left: auto;
-}
-
-/* MODAL */
-.modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-}
-
-.modal-box {
-    background: white;
-    padding: 22px;
-    width: 100%;
-    max-width: 380px;
-    border-radius: 14px;
-}
-
-.modal-box input,
-.modal-box textarea {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-}
-
-/* 🔻 MOBILE FIXES */
-@media (max-width: 600px) {
     .product-card {
-        flex-direction: column;
-        align-items: flex-start;
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .image-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .img-wrap {
+      position: relative;
+    }
+
+    .img-wrap img {
+      width: 90px;
+      height: 90px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .img-wrap button {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .add-img-btn {
+      background: #28a745;
+      border: none;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      height: fit-content;
     }
 
     .product-actions {
-        margin-left: 0;
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    @media (max-width: 600px) {
+      .product-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .product-actions {
         width: 100%;
         justify-content: space-between;
+        margin-left: 0;
+      }
     }
-
-    .modal-box {
-        margin: 0 14px;
-    }
-}
-    .image-row {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.img-wrap {
-  position: relative;
-}
-
-.img-wrap img {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 6px;
-}
-
-.img-wrap button {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  background: red;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  font-size: 12px;
-  cursor: pointer;
-  width: 18px;
-  height: 18px;
-}
-
-.image-row > button {
-  background: #28a745;
-  border-radius: 6px;
-  padding: 6px 10px;
-  font-size: 14px;
-  cursor: pointer;
-  border: none;
-  color: white;
-}
-
-    </style>
+  </style>
 </head>
 
 <body>
 
 <script>
-if (localStorage.getItem("is_admin") !== "true") {
+  if (localStorage.getItem("is_admin") !== "true") {
     location.href = "admin-login.html";
-}
+  }
 </script>
 
 <header class="header">
-    <div class="container header-inner">
-        <div class="brand">Admin<span style="color:var(--orange)">Panel</span></div>
-        <div class="hamburger" onclick="toggleNav()">
-            <span></span><span></span><span></span>
-        </div>
-        <nav class="nav">
-            <ul class="nav-list">
-                <li><a href="/pandastore/templates/dashboard.html">Dashboard</a></li>
-                <li><a href="/pandastore/templates/add-product.html">Add Product</a></li>
-                <li><a href="/pandastore/templates/products.html" style="color:var(--red);font-weight:700;">Manage Products</a></li>
-                <li><a href="/pandastore/templates/customers.html">Customers</a></li>
-                <li><a href="/pandastore/templates/order.html">Orders</a></li>
-                <li><a href="#" onclick="logoutAdmin()">Logout</a></li>
-            </ul>
-        </nav>
-    </div>
+  <div class="container header-inner">
+    <div class="brand">Admin<span style="color:var(--orange)">Panel</span></div>
+    <nav class="nav">
+      <ul class="nav-list">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="add-product.html">Add Product</a></li>
+        <li><a href="products.html" style="color:var(--red);font-weight:700;">Manage Products</a></li>
+        <li><a href="#" onclick="logoutAdmin()">Logout</a></li>
+      </ul>
+    </nav>
+  </div>
 </header>
 
 <div class="container" style="padding:40px 0;">
-    <h2 style="color:var(--red);font-weight:800;">Manage Products</h2>
-    <div id="productList" style="margin-top:25px;"></div>
+  <h2 style="color:var(--red);font-weight:800;">Manage Products</h2>
+  <div id="productList" style="margin-top:25px;"></div>
 </div>
+
 <script src="../assets/js/app.js"></script>
+
 <script>
+const API = CONFIG.API;
 let PRODUCTS = [];
 
 // ---------------- LOAD PRODUCTS ----------------
 async function loadProducts() {
-    const res = await fetch(`${CONFIG.API}/products`);
-    const products = await res.json();
+  const res = await fetch(`${API}/products`);
+  const products = await res.json();
 
-    const list = document.getElementById("productList");
-    list.innerHTML = "";
+  const list = document.getElementById("productList");
+  list.innerHTML = "";
 
-    if (!products.length) {
-        list.innerHTML = `
-            <div style="
-                background:white;
-                padding:30px;
-                border-radius:12px;
-                box-shadow:0 4px 14px rgba(0,0,0,0.08);
-                text-align:center;
-                opacity:.8;
-            ">
-                <h3>No products found</h3>
-                <p style="margin-top:8px;">
-                    Add products from the <b>Add Product</b> page to see them here.
-                </p>
-            </div>
-        `;
-        return;
-    }
+  PRODUCTS = products;
 
-    PRODUCTS = products;
-
-    PRODUCTS.forEach(p => {
-        list.innerHTML += `
-            <div class="product-card">
-                <img src="${p.image_url || 'https://via.placeholder.com/90'}">
-
-                <div style="flex:1;">
-                    <h3>${p.name}</h3>
-                    <p>ID: ${p.product_no}</p>
-                    <p>₹${p.price} • Stock: ${p.stock}</p>
-                    <p>Category: ${p.category}</p>
-                </div>
-
-                <div class="product-actions">
-                    <button class="btn primary" onclick="openEdit(${p.id})">Edit</button>
-                    <button class="btn ghost" onclick="deleteProduct(${p.id})">Delete</button>
-                </div>
-            </div>
-        `;
-    });
-}
-// ---------------- DELETE ----------------
-async function deleteProduct(id) {
-  if (!window.confirm("Delete this product permanently?")) return;
-
-  const res = await fetch(`${CONFIG.API}/product/${id}`, {
-    method: "DELETE"
-  });
-
-  if (!res.ok) {
-    showToast("Failed to delete product", "error");
+  if (!products.length) {
+    list.innerHTML = "<p>No products found</p>";
     return;
   }
 
-  showToast("Product deleted", "success");
+  products.forEach(p => {
+    list.innerHTML += `
+      <div class="product-card">
+        <div class="image-row">
+          ${
+            p.images.map(img => `
+              <div class="img-wrap">
+                <img src="${img.url}">
+                <button onclick="deleteImage(${img.id})">✖</button>
+              </div>
+            `).join("")
+          }
+          <button class="add-img-btn" onclick="addImage(${p.id})">➕</button>
+        </div>
+
+        <div style="flex:1;">
+          <h3>${p.name}</h3>
+          <p>ID: ${p.product_no}</p>
+          <p>₹${p.price} • Stock: ${p.stock}</p>
+          <p>Category: ${p.category}</p>
+        </div>
+
+        <div class="product-actions">
+          <button class="btn primary" onclick="openEdit(${p.id})">Edit</button>
+          <button class="btn ghost" onclick="deleteProduct(${p.id})">Delete</button>
+        </div>
+      </div>
+    `;
+  });
+}
+
+// ---------------- ADD IMAGE ----------------
+function addImage(productId) {
+  cloudinary.openUploadWidget({
+    cloudName: "du7hfexwm",
+    uploadPreset: "unsigned_chunri_upload",
+    multiple: false
+  }, (err, res) => {
+    if (!err && res.event === "success") {
+      fetch(`${API}/product/${productId}/image`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ image_url: res.info.secure_url })
+      }).then(loadProducts);
+    }
+  });
+}
+
+// ---------------- DELETE IMAGE ----------------
+function deleteImage(imageId) {
+  if (!confirm("Delete this image?")) return;
+
+  fetch(`${API}/product/image/${imageId}`, { method: "DELETE" })
+    .then(loadProducts);
+}
+
+// ---------------- DELETE PRODUCT ----------------
+async function deleteProduct(id) {
+  if (!confirm("Delete this product?")) return;
+
+  await fetch(`${API}/product/${id}`, { method: "DELETE" });
   loadProducts();
 }
-// ---------------- EDIT ----------------
+
+// ---------------- EDIT PRODUCT ----------------
 function openEdit(id) {
-    const p = PRODUCTS.find(x => x.id === id);
+  const p = PRODUCTS.find(x => x.id === id);
 
-    const modal = document.createElement("div");
-    modal.className = "modal";
-
-    modal.innerHTML = `
-        <div class="modal-box">
-            <h3>Edit Product</h3>
-
-            <input id="e_no" value="${p.product_no}" placeholder="Product ID">
-            <input id="e_name" value="${p.name}" placeholder="Name">
-            <input id="e_price" type="number" value="${p.price}" placeholder="Price">
-            <input id="e_stock" type="number" value="${p.stock}" placeholder="Stock">
-            <input id="e_category" value="${p.category}" placeholder="Category">
-            <textarea id="e_desc" rows="3" placeholder="Description">${p.description || ""}</textarea>
-
-            <button class="btn primary" style="width:100%;" onclick="saveEdit(${p.id})">Save</button>
-            <button class="btn ghost" style="width:100%;margin-top:8px;" onclick="this.closest('.modal').remove()">Cancel</button>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
+  const modal = document.createElement("div");
+  modal.className = "modal";
+  modal.innerHTML = `
+    <div class="modal-box">
+      <h3>Edit Product</h3>
+      <input id="e_name" value="${p.name}">
+      <input id="e_price" type="number" value="${p.price}">
+      <input id="e_stock" type="number" value="${p.stock}">
+      <button class="btn primary" style="width:100%" onclick="saveEdit(${id})">Save</button>
+      <button class="btn ghost" style="width:100%;margin-top:8px" onclick="this.closest('.modal').remove()">Cancel</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
 }
-// ---------------- SAVE ----------------
+
+// ---------------- SAVE EDIT ----------------
 async function saveEdit(id) {
-  const payload = {
-    product_no: e_no.value.trim(),
-    name: e_name.value.trim(),
+  const body = {
+    name: e_name.value,
     price: Number(e_price.value),
-    stock: Number(e_stock.value),
-    category: e_category.value.trim(),
-    description: e_desc.value.trim()
+    stock: Number(e_stock.value)
   };
 
-  const res = await fetch(`${CONFIG.API}/product/${id}`, {
+  await fetch(`${API}/product/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(body)
   });
 
-  if (!res.ok) {
-    showToast("Failed to update product", "error");
-    return;
-  }
-
-  showToast("Product updated", "success");
   document.querySelector(".modal").remove();
   loadProducts();
 }
+
+// ---------------- AUTH ----------------
+function logoutAdmin() {
+  localStorage.clear();
+  location.href = "admin-login.html";
+}
+
 loadProducts();
 </script>
-<div id="toast" class="toast"></div>
+
 </body>
 </html>
