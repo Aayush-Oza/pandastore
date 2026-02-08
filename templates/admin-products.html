@@ -140,7 +140,7 @@ if (localStorage.getItem("is_admin") !== "true") {
         <input id="editCloth" placeholder="Cloth Type">
         <input id="editDesign" placeholder="Design">
         <input id="editColor" placeholder="Color">
-        <input id="editImage" placeholder="Image URL">
+        
 
         <button class="btn" style="background:var(--orange);" onclick="saveProduct()">Save</button>
         <button class="btn" style="background:#aaa;" onclick="closePopup()">Cancel</button>
@@ -163,7 +163,18 @@ async function loadProducts() {
         table.innerHTML += `
             <tr>
                 <td>${p.id}</td>
-                <td><img src="${p.image_url}"></td>
+                <td>
+  <div class="image-row">
+    ${p.images.map(img => `
+      <div class="img-wrap">
+        <img src="${img.url}">
+        <button onclick="deleteImage(${img.id})">✖</button>
+      </div>
+    `).join("")}
+    <button onclick="addImage(${p.id})">➕</button>
+  </div>
+</td>
+
                 <td>${p.name}</td>
                 <td>₹${p.price}</td>
                 <td>${p.stock}</td>
@@ -229,6 +240,28 @@ async function deleteProduct(id) {
 
     await fetch(`${API}/product/${id}`, { method: "DELETE" });
     loadProducts();
+}
+function deleteImage(imageId) {
+  if (!confirm("Delete this image?")) return;
+
+  fetch(`${API}/product/image/${imageId}`, { method: "DELETE" })
+    .then(loadProducts);
+}
+
+function addImage(productId) {
+  cloudinary.openUploadWidget({
+    cloudName: "du7hfexwm",
+    uploadPreset: "unsigned_chunri_upload",
+    multiple: false
+  }, (err, res) => {
+    if (!err && res.event === "success") {
+      fetch(`${API}/product/${productId}/image`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ image_url: res.info.secure_url })
+      }).then(loadProducts);
+    }
+  });
 }
 
 document.addEventListener("DOMContentLoaded", loadProducts);
