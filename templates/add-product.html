@@ -101,76 +101,108 @@
 </div>
 <script src="../assets/js/app.js"></script>
 <script>
-let imageURL = "";
+/* ================================
+   STATE
+================================ */
+let imageURLs = [];   // ✅ MUST be array
 
-// IMAGE UPLOAD
+/* ================================
+   IMAGE UPLOAD (MULTIPLE)
+================================ */
 function uploadImage() {
-    cloudinary.openUploadWidget({
-        cloudName: "du7hfexwm",
-        uploadPreset: "unsigned_chunri_upload",
-        multiple: false
-    }, (err, res) => {
-        if (!err && res && res.event === "success") {
-            imageURL = res.info.secure_url;
-            imageStatus.innerHTML = "Image uploaded ✔";
-            submitBtn.disabled = false;
-        }
-    });
-}
+  cloudinary.openUploadWidget(
+    {
+      cloudName: "du7hfexwm",
+      uploadPreset: "unsigned_chunri_upload",
+      multiple: true,
+      maxFiles: 6
+    },
+    (err, res) => {
+      if (err) {
+        showToast("Image upload failed", "error");
+        return;
+      }
 
-// SUBMIT
-productForm.addEventListener("submit", async e => {
-    e.preventDefault();
+      if (res && res.event === "success") {
+        imageURLs.push(res.info.secure_url);
 
-    try {
-        const rawCategory = document.getElementById("category").value.trim();
-        const normalizedCategory =
-            rawCategory.charAt(0).toUpperCase() + rawCategory.slice(1).toLowerCase();
+        document.getElementById("imageStatus").innerHTML =
+          `Uploaded ${imageURLs.length} image(s) ✔`;
 
-        const payload = {
-            product_no: document.getElementById("product_no").value.trim(),
-            name: document.getElementById("name").value.trim(),
-            category: normalizedCategory,
-            description: document.getElementById("description").value.trim(),
-            price: Number(document.getElementById("price").value),
-            stock: Number(document.getElementById("stock").value),
-            image_url: imageURL,
-            is_active: true
-        };
-
-        console.log("📦 Sending payload:", payload);
-
-        const res = await fetch(`${CONFIG.API}/product`, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(payload)
-});
-        console.log("📡 Response status:", res.status);
-
-        const data = await res.json();
-        console.log("✅ Response data:", data);
-if (!res.ok) {
-    showToast(data.error || "Failed to add product", "error");
-    return;
-}
-
-showToast("Product added successfully", "success");
-        // window.location.href = "dashboard.html"; // keep OFF for now
-
-    } catch (err) {
-        console.error("❌ JS error:", err);
-        showToast("Frontend error. Check console.", "error");
+        // Enable submit once at least 1 image exists
+        document.getElementById("submitBtn").disabled = false;
+      }
     }
+  );
+}
+
+/* ================================
+   FORM SUBMIT
+================================ */
+document.getElementById("productForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  if (imageURLs.length === 0) {
+    showToast("Please upload at least one image", "error");
+    return;
+  }
+
+  try {
+    const rawCategory = document.getElementById("category").value.trim();
+    const normalizedCategory =
+      rawCategory.charAt(0).toUpperCase() +
+      rawCategory.slice(1).toLowerCase();
+
+    const payload = {
+      product_no: document.getElementById("product_no").value.trim(),
+      name: document.getElementById("name").value.trim(),
+      category: normalizedCategory,
+      description: document.getElementById("description").value.trim(),
+      price: Number(document.getElementById("price").value),
+      stock: Number(document.getElementById("stock").value),
+      images: imageURLs,        // ✅ CORRECT KEY
+      is_active: true
+    };
+
+    console.log("📦 Sending payload:", payload);
+
+    const res = await fetch(`${CONFIG.API}/product`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.error || "Failed to add product", "error");
+      return;
+    }
+
+    showToast("Product added successfully 🎉", "success");
+
+    // OPTIONAL: reset form
+    document.getElementById("productForm").reset();
+    imageURLs = [];
+    document.getElementById("imageStatus").innerHTML = "No image uploaded";
+    document.getElementById("submitBtn").disabled = true;
+
+  } catch (err) {
+    console.error("❌ JS error:", err);
+    showToast("Frontend error. Check console.", "error");
+  }
 });
 
-// AUTH
+/* ================================
+   AUTH
+================================ */
 function logoutAdmin() {
-    localStorage.clear();
-    location.href = "admin-login.html";
+  localStorage.clear();
+  location.href = "admin-login.html";
 }
 
 if (localStorage.getItem("is_admin") !== "true") {
-    location.href = "admin-login.html";
+  location.href = "admin-login.html";
 }
 </script>
 <div id="toast" class="toast"></div>
