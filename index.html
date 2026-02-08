@@ -56,6 +56,21 @@
     oninput="applyFilters()"
     style="padding:10px; width:250px; margin-right:10px;"
   >
+  <input
+  type="number"
+  id="minPrice"
+  placeholder="Min ₹"
+  style="padding:10px; width:120px; margin-right:5px;"
+  oninput="applyFilters()"
+/>
+
+<input
+  type="number"
+  id="maxPrice"
+  placeholder="Max ₹"
+  style="padding:10px; width:120px; margin-right:10px;"
+  oninput="applyFilters()"
+/>
 
   <select id="categoryFilter" onchange="applyFilters()" style="padding:10px;">
     <option value="">All Categories</option>
@@ -90,11 +105,10 @@ function renderByCategory(products) {
   wrapper.innerHTML = "";
 
   if (!products.length) {
-    wrapper.innerHTML = "<p>No products available.</p>";
+    wrapper.innerHTML = "<p>No products match your search.</p>";
     return;
   }
 
-  // Group products by category
   const grouped = {};
   products.forEach(p => {
     const category = p.category || "Other";
@@ -102,7 +116,6 @@ function renderByCategory(products) {
     grouped[category].push(p);
   });
 
-  // Render sections
   Object.entries(grouped).forEach(([category, items]) => {
     const section = document.createElement("section");
     section.className = "category-section";
@@ -115,10 +128,6 @@ function renderByCategory(products) {
     `;
 
     wrapper.appendChild(section);
-    if (!products.length) {
-  wrapper.innerHTML = "<p>No products match your search.</p>";
-  return;
-}
   });
 }
 
@@ -156,8 +165,11 @@ function renderProductCard(p) {
 function openProduct(id) {
   window.location.href = `/pandastore/templates/product_detail.html?id=${id}`;
 }
+
 function populateCategoryFilter(products) {
   const select = document.getElementById("categoryFilter");
+  select.innerHTML = `<option value="">All Categories</option>`;
+
   const categories = [...new Set(products.map(p => p.category))];
 
   categories.forEach(cat => {
@@ -167,9 +179,12 @@ function populateCategoryFilter(products) {
     select.appendChild(opt);
   });
 }
+
 function applyFilters() {
   const search = document.getElementById("searchInput").value.toLowerCase();
   const category = document.getElementById("categoryFilter").value;
+  const minPrice = parseFloat(document.getElementById("minPrice").value);
+  const maxPrice = parseFloat(document.getElementById("maxPrice").value);
 
   const filtered = ALL_PRODUCTS.filter(p => {
     const matchesSearch =
@@ -179,7 +194,13 @@ function applyFilters() {
     const matchesCategory =
       !category || p.category === category;
 
-    return matchesSearch && matchesCategory;
+    const matchesMin =
+      isNaN(minPrice) || p.price >= minPrice;
+
+    const matchesMax =
+      isNaN(maxPrice) || p.price <= maxPrice;
+
+    return matchesSearch && matchesCategory && matchesMin && matchesMax;
   });
 
   renderByCategory(filtered);
