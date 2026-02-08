@@ -126,6 +126,12 @@
     <p id="passwordMsg" style="margin-top:8px;font-size:14px;display:none;"></p>
 
     <button type="submit">Register</button>
+    <p id="registerMsg" style="margin-top:10px; font-size:14px; display:none;"></p>
+
+<div id="otpBox" class="otp-box">
+  <input class="input-field" id="otp" placeholder="Enter OTP">
+  <button type="button" onclick="verifyRegisterOtp()">Verify OTP</button>
+</div>
 
     <p style="margin-top: 10px; text-align:center;">
       Already have an account?
@@ -147,6 +153,14 @@ const phoneRegex = /^\d{10}$/;
 const passwordInput = document.getElementById("password");
 const confirmInput = document.getElementById("confirmPassword");
 const passwordMsg = document.getElementById("passwordMsg");
+let DEMO_OTP = null;
+
+function showRegisterMsg(text, color = "#333") {
+  const msg = document.getElementById("registerMsg");
+  msg.style.display = "block";
+  msg.style.color = color;
+  msg.innerHTML = text;
+}
 
 // 🔴🟢 LIVE PASSWORD VALIDATION
 passwordInput.addEventListener("input", () => {
