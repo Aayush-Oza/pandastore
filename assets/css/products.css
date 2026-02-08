@@ -146,3 +146,47 @@
 .category-section {
   margin-bottom: 64px;
 }
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.filters input,
+.filters select {
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+/* Price inputs side by side */
+.price-row {
+  display: flex;
+  gap: 10px;
+}
+
+.price-row input {
+  flex: 1;
+}
+
+/* Desktop enhancement */
+@media (min-width: 768px) {
+  .filters {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .filter-search {
+    width: 260px;
+  }
+
+  .price-row {
+    width: 260px;
+  }
+
+  .filters select {
+    width: 200px;
+  }
+}

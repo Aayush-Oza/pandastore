@@ -48,31 +48,31 @@
 <!-- ================= PRODUCTS ================= -->
 <div class="container">
   <h2 class="page-title">Explore Panda Store</h2>
-  <div class="filters" style="margin-bottom:20px;">
+  <div class="filters">
   <input
     type="text"
     id="searchInput"
     placeholder="Search by product no or name"
     oninput="applyFilters()"
-    style="padding:10px; width:250px; margin-right:10px;"
+    class="filter-search"
   >
-  <input
-  type="number"
-  id="minPrice"
-  placeholder="Min ₹"
-  style="padding:10px; width:120px; margin-right:5px;"
-  oninput="applyFilters()"
-/>
 
-<input
-  type="number"
-  id="maxPrice"
-  placeholder="Max ₹"
-  style="padding:10px; width:120px; margin-right:10px;"
-  oninput="applyFilters()"
-/>
+  <div class="price-row">
+    <input
+      type="number"
+      id="minPrice"
+      placeholder="Min ₹"
+      oninput="applyFilters()"
+    >
+    <input
+      type="number"
+      id="maxPrice"
+      placeholder="Max ₹"
+      oninput="applyFilters()"
+    >
+  </div>
 
-  <select id="categoryFilter" onchange="applyFilters()" style="padding:10px;">
+  <select id="categoryFilter" onchange="applyFilters()">
     <option value="">All Categories</option>
   </select>
 </div>
