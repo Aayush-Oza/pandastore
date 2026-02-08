@@ -74,6 +74,47 @@
             border:1px solid #ccc;
             border-radius:6px;
         }
+        .image-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.img-wrap {
+  position: relative;
+}
+
+.img-wrap img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.img-wrap button {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 12px;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+}
+
+.image-row > button {
+  background: #28a745;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  color: white;
+}
     </style>
 </head>
 
